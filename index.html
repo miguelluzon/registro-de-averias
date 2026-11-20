@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registro de averías</title>
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#1b2a33">
+<style>
+:root{--bg:#eceff0;--card:#fff;--ink:#1b2a33;--mut:#5d6d77;--line:#cfd7db;--acc:#f2a900;--ok:#2e7d4f;--prog:#1f6fb2;--bad:#c0392b}
+@media(prefers-color-scheme:dark){:root{--bg:#10181d;--card:#192329;--ink:#e6ecef;--mut:#93a4ad;--line:#2b3a42;--ok:#4fb27a;--prog:#5aa7e6;--bad:#e5695a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Bahnschrift,"Segoe UI",system-ui,sans-serif;padding-bottom:76px}
+header{background:#1b2a33;color:#fff;padding:14px 16px;border-bottom:4px solid var(--acc)}
+header h1{margin:0;font-size:1.25rem;letter-spacing:.2px}header small{color:#aebcc4}
+main{max-width:860px;margin:0 auto;padding:14px}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px}
+h2{font-size:1.05rem;margin:0 0 10px}
+label{display:block;font-size:.85rem;color:var(--mut);margin-bottom:10px}
+input,select,textarea{display:block;width:100%;margin-top:3px;padding:10px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px}
+textarea{min-height:64px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.g .w{grid-column:1/-1}
+@media(max-width:520px){.g{grid-template-columns:1fr}}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:9px 14px}
+.pri{background:var(--acc);border-color:var(--acc);color:#1b2a33;font-weight:700;width:100%;padding:13px}
+.sm{padding:6px 10px;font-size:.85rem}.dng{color:var(--bad)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1b2a33;border-top:3px solid var(--acc);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;color:#aebcc4;padding:14px 4px}
+nav button.on{color:#fff;font-weight:700;box-shadow:inset 0 -4px var(--acc)}
+.it{border-left:5px solid var(--line)}.it.Abierta{border-left-color:var(--bad)}.it.En{border-left-color:var(--prog)}.it.Resuelta{border-left-color:var(--ok)}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.top b{font-size:1.02rem}
+.mut{color:var(--mut);font-size:.85rem}
+.chip{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);margin:4px 4px 4px 0}
+.chip.Urgente{background:var(--bad);color:#fff;border-color:var(--bad)}.chip.Alta{border-color:var(--bad);color:var(--bad)}
+.acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.f{display:flex;gap:8px;margin-bottom:12px}.f>*{margin:0}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.k div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}.k b{display:block;font-size:1.6rem}
+.bar{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;align-items:center;margin:6px 0;font-size:.85rem}
+.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:14px;background:var(--acc);border-radius:3px;min-width:3px}.bar b{text-align:right}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1b2a33;color:#fff;padding:10px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+</style></head><body>
+<header><h1>Registro de averías</h1><small id="sub">Mantenimiento</small></header>
+<main>
+<section id="t-reg" class="tab on"><form id="frm" class="card">
+<h2 id="ftitle">Nueva avería</h2>
+<div class="g">
+<label class="w">Equipo<input id="f-equipo" list="dl-eq" required placeholder="Ej.: Centrífuga 3, autoclave…" autocomplete="off"></label>
+<label>Ubicación<input id="f-ubic" list="dl-ub" placeholder="Sala o planta" autocomplete="off"></label>
+<label>Fecha y hora<input id="f-fecha" type="datetime-local" required></label>
+<label>Tipo<select id="f-tipo"></select></label>
+<label>Prioridad<select id="f-prio"></select></label>
+<label class="w">Estado<select id="f-estado"></select></label>
+<label class="w">¿Qué ha fallado?<textarea id="f-desc" required></textarea></label>
+<label class="w">Causa<textarea id="f-causa"></textarea></label>
+<label class="w">Solución aplicada<textarea id="f-sol"></textarea></label>
+<label>Tiempo empleado (min)<input id="f-min" type="number" min="0" inputmode="numeric"></label>
+<label>Repuestos usados<input id="f-rep" placeholder="Ej.: fusible 5A"></label>
+</div>
+<datalist id="dl-eq"></datalist><datalist id="dl-ub"></datalist>
+<button class="pri" id="save">Guardar avería</button>
+<button type="button" id="cancel" class="sm" hidden style="margin-top:8px">Cancelar edición</button>
+</form></section>
+
+<section id="t-his" class="tab">
+<div class="f"><input id="h-q" type="search" placeholder="Buscar equipo, avería, solución…"><select id="h-est" style="max-width:170px"></select></div>
+<div id="list"></div></section>
+
+<section id="t-sta" class="tab"></section>
+
+<section id="t-dat" class="tab"><div class="card"><h2>Copia de seguridad y Excel</h2>
+<p class="mut">Los datos se guardan solo en este dispositivo. Haz una copia de vez en cuando.</p>
+<div class="acts"><button id="x-csv">Descargar Excel (.csv)</button><button id="x-json">Copia de seguridad (.json)</button><button onclick="$('#imp').click()">Restaurar copia</button></div>
+<input id="imp" type="file" accept=".json,application/json" hidden></div>
+<div class="card"><h2>Borrar todo</h2><button class="dng" id="wipe">Borrar todas las averías</button></div></section>
+</main>
+<nav><button data-t="reg" class="on">Registrar</button><button data-t="his">Historial</button><button data-t="sta">Estadísticas</button><button data-t="dat">Datos</button></nav>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TIPOS=['Correctivo','Preventivo','Revisión','Calibración'],PRIO=['Baja','Media','Alta','Urgente'],EST=['Abierta','En curso','Resuelta'];
+const opts=a=>a.map(x=>`<option>${x}</option>`).join('');
+$('#f-tipo').innerHTML=opts(TIPOS);$('#f-prio').innerHTML=opts(PRIO);$('#f-estado').innerHTML=opts(EST);
+$('#h-est').innerHTML='<option value="">Todos los estados</option>'+opts(EST);
+const now=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+const fmt=f=>new Date(f).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'});
+let db,items=[],editId=null,tt;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)};
+const rq=indexedDB.open('averias',1);
+rq.onupgradeneeded=e=>e.target.result.createObjectStore('items',{keyPath:'id',autoIncrement:true});
+rq.onsuccess=e=>{db=e.target.result;load()};
+rq.onerror=()=>alert('No se puede guardar en este navegador.');
+const st=m=>db.transaction('items',m).objectStore('items');
+function load(){st('readonly').getAll().onsuccess=e=>{items=e.target.result.sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id);render()}}
+const put=o=>new Promise(r=>{st('readwrite').put(o).onsuccess=e=>{load();r(e.target.result)}});
+function resetForm(){editId=null;$('#frm').reset();$('#f-fecha').value=now();$('#f-prio').value='Media';$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
+$('#frm').onsubmit=async e=>{e.preventDefault();
+ const o={equipo:$('#f-equipo').value.trim(),ubic:$('#f-ubic').value.trim(),fecha:$('#f-fecha').value,tipo:$('#f-tipo').value,prio:$('#f-prio').value,estado:$('#f-estado').value,desc:$('#f-desc').value.trim(),causa:$('#f-causa').value.trim(),sol:$('#f-sol').value.trim(),min:+$('#f-min').value||0,rep:$('#f-rep').value.trim()};
+ if(editId)o.id=editId;const id=await put(o);toast(`Avería #${id} guardada`);resetForm();};
+$('#cancel').onclick=resetForm;
+function render(){
+ $('#sub').textContent=items.length+' registradas · '+items.filter(i=>i.estado!=='Resuelta').length+' sin resolver';
+ $('#dl-eq').innerHTML=[...new Set(items.map(i=>i.equipo))].map(x=>`<option value="${esc(x)}">`).join('');
+ $('#dl-ub').innerHTML=[...new Set(items.map(i=>i.ubic).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join('');
+ const q=$('#h-q').value.toLowerCase(),es=$('#h-est').value;
+ const l=items.filter(i=>(!es||i.estado===es)&&(!q||[i.equipo,i.ubic,i.desc,i.causa,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
+ $('#list').innerHTML=l.map(i=>`<div class="card it ${i.estado.split(' ')[0]}"><div class="top"><b>#${i.id} · ${esc(i.equipo)}</b><span class="mut">${fmt(i.fecha)}</span></div>
+ <span class="chip">${i.estado}</span><span class="chip ${i.prio}">${i.prio}</span><span class="chip">${i.tipo}</span>${i.ubic?`<span class="chip">${esc(i.ubic)}</span>`:''}${i.min?`<span class="chip">${i.min} min</span>`:''}
+ <div>${esc(i.desc)}</div>${i.causa?`<div class="mut">Causa: ${esc(i.causa)}</div>`:''}${i.sol?`<div class="mut">Solución: ${esc(i.sol)}</div>`:''}${i.rep?`<div class="mut">Repuestos: ${esc(i.rep)}</div>`:''}
+ <div class="acts">${i.estado!=='Resuelta'?`<button class="sm" data-a="res" data-id="${i.id}">Marcar resuelta</button>`:''}<button class="sm" data-a="ed" data-id="${i.id}">Editar</button><button class="sm dng" data-a="del" data-id="${i.id}">Borrar</button></div></div>`).join('')||'<div class="card mut">No hay averías que mostrar. Registra la primera en la pestaña «Registrar».</div>';
+ stats();}
+$('#h-q').oninput=render;$('#h-est').onchange=render;
+$('#list').onclick=e=>{const b=e.target.closest('button');if(!b)return;const id=+b.dataset.id,i=items.find(x=>x.id===id);
+ if(b.dataset.a==='res'){put({...i,estado:'Resuelta'});toast('Marcada como resuelta')}
+ if(b.dataset.a==='del'&&confirm(`¿Borrar la avería #${id}?`))st('readwrite').delete(id).onsuccess=load;
+ if(b.dataset.a==='ed'){editId=id;const m={equipo:'equipo',ubic:'ubic',fecha:'fecha',tipo:'tipo',prio:'prio',estado:'estado',desc:'desc',causa:'causa',sol:'sol',min:'min',rep:'rep'};
+  for(const k in m)$('#f-'+k).value=i[k]??'';$('#ftitle').textContent='Editando avería #'+id;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg');scrollTo(0,0)}};
+function bars(map,ord){let e=Object.entries(map);if(ord)e=e.sort().slice(-6);else e=e.sort((a,b)=>b[1]-a[1]).slice(0,8);const m=Math.max(1,...e.map(x=>x[1]));
+ return e.map(([k,v])=>`<div class="bar"><span title="${esc(k)}">${esc(k)}</span><i style="width:${v/m*100}%"></i><b>${v}</b></div>`).join('')||'<p class="mut">Sin datos todavía.</p>'}
+function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);m[k]=(m[k]||0)+1;return m},{});
+ const tm=items.reduce((s,i)=>s+i.min,0),tq={};items.forEach(i=>{if(i.min)tq[i.equipo]=(tq[i.equipo]||0)+i.min});
+ const con=items.filter(i=>i.min);
+ $('#t-sta').innerHTML=`<div class="k"><div><b>${items.length}</b>averías</div><div><b>${items.filter(i=>i.estado!=='Resuelta').length}</b>sin resolver</div><div><b>${(tm/60).toFixed(1)} h</b>tiempo total</div><div><b>${con.length?Math.round(tm/con.length):0} min</b>media por avería</div></div>
+ <div class="card"><h2>Equipos con más averías</h2>${bars(c(i=>i.equipo))}</div>
+ <div class="card"><h2>Minutos dedicados por equipo</h2>${bars(tq)}</div>
+ <div class="card"><h2>Por tipo</h2>${bars(c(i=>i.tipo))}</div>
+ <div class="card"><h2>Últimos 6 meses</h2>${bars(c(i=>i.fecha.slice(0,7)),1)}</div>`}
+function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
+$$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+const dl=(n,t,y)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click()};
+const day=()=>new Date().toISOString().slice(0,10);
+$('#x-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
+ const H=['Nº','Fecha','Equipo','Ubicación','Tipo','Prioridad','Estado','Avería','Causa','Solución','Minutos','Repuestos'];
+ const r=[...items].sort((a,b)=>a.id-b.id).map(i=>[i.id,i.fecha.replace('T',' '),i.equipo,i.ubic,i.tipo,i.prio,i.estado,i.desc,i.causa,i.sol,i.min,i.rep].map(q).join(';'));
+ dl(`averias-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
+$('#x-json').onclick=()=>dl(`averias-copia-${day()}.json`,JSON.stringify(items),'application/json');
+$('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+ try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!confirm(`Se reemplazarán los datos actuales por ${d.length} registros de la copia. ¿Continuar?`))return;
+ const s=db.transaction('items','readwrite'),o=s.objectStore('items');o.clear();d.forEach(x=>o.put(x));s.oncomplete=()=>{load();toast('Copia restaurada')}}catch{alert('El archivo no es una copia válida.')}e.target.value=''};
+$('#wipe').onclick=()=>{if(confirm('¿Borrar TODAS las averías? No se puede deshacer.'))st('readwrite').clear().onsuccess=()=>{load();toast('Datos borrados')}};
+resetForm();navigator.storage?.persist?.();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
