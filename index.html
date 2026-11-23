@@ -3,145 +3,189 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Registro de averías</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
-<meta name="theme-color" content="#1b2a33">
+<meta name="theme-color" content="#0b5c6b">
 <style>
-:root{--bg:#eceff0;--card:#fff;--ink:#1b2a33;--mut:#5d6d77;--line:#cfd7db;--acc:#f2a900;--ok:#2e7d4f;--prog:#1f6fb2;--bad:#c0392b}
-@media(prefers-color-scheme:dark){:root{--bg:#10181d;--card:#192329;--ink:#e6ecef;--mut:#93a4ad;--line:#2b3a42;--ok:#4fb27a;--prog:#5aa7e6;--bad:#e5695a}}
+:root{--bg:#f3f5f7;--sf:#fff;--ink:#16222e;--mut:#5b6b7a;--ln:#d8dee4;--pri:#0b5c6b;--onpri:#fff;--pen:#a14a05;--penb:#fdf0e1;--ok:#1c7a4a;--okb:#e4f4ea;--bad:#b3261e;--sel:#e3f1f3}
+@media(prefers-color-scheme:dark){:root{--bg:#0f161c;--sf:#17212a;--ink:#e7edf2;--mut:#8fa1b0;--ln:#2a3844;--pri:#3aa6b9;--onpri:#06232a;--pen:#f0a35e;--penb:#2e2113;--ok:#5cc489;--okb:#13281c;--bad:#f0877f;--sel:#17323a}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Bahnschrift,"Segoe UI",system-ui,sans-serif;padding-bottom:76px}
-header{background:#1b2a33;color:#fff;padding:14px 16px;border-bottom:4px solid var(--acc)}
-header h1{margin:0;font-size:1.25rem;letter-spacing:.2px}header small{color:#aebcc4}
-main{max-width:860px;margin:0 auto;padding:14px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif;padding-bottom:70px;font-variant-numeric:tabular-nums}
+header{background:var(--sf);border-bottom:1px solid var(--ln)}
+.brand{max-width:900px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand h1{margin:0;font-size:1.1rem;font-weight:650}.brand small{color:var(--mut)}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-size:.82rem;padding:14px 2px;cursor:pointer;border-top:3px solid transparent}
+nav button.on{color:var(--pri);font-weight:650;border-top-color:var(--pri)}
+@media(min-width:760px){body{padding-bottom:0}nav{position:sticky;top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--ln);padding:0 calc(50% - 450px)}nav button{flex:none;padding:13px 22px;font-size:.95rem;border-top:0;border-bottom:3px solid transparent}nav button.on{border-bottom-color:var(--pri)}}
+main{max-width:900px;margin:0 auto;padding:16px}
 .tab{display:none}.tab.on{display:block}
-.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px}
-h2{font-size:1.05rem;margin:0 0 10px}
-label{display:block;font-size:.85rem;color:var(--mut);margin-bottom:10px}
-input,select,textarea{display:block;width:100%;margin-top:3px;padding:10px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px}
-textarea{min-height:64px;resize:vertical}
-input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
-.g{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.g .w{grid-column:1/-1}
-@media(max-width:520px){.g{grid-template-columns:1fr}}
-button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:9px 14px}
-.pri{background:var(--acc);border-color:var(--acc);color:#1b2a33;font-weight:700;width:100%;padding:13px}
-.sm{padding:6px 10px;font-size:.85rem}.dng{color:var(--bad)}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1b2a33;border-top:3px solid var(--acc);padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;border-radius:0;background:none;color:#aebcc4;padding:14px 4px}
-nav button.on{color:#fff;font-weight:700;box-shadow:inset 0 -4px var(--acc)}
-.it{border-left:5px solid var(--line)}.it.Abierta{border-left-color:var(--bad)}.it.En{border-left-color:var(--prog)}.it.Resuelta{border-left-color:var(--ok)}
-.top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.top b{font-size:1.02rem}
-.mut{color:var(--mut);font-size:.85rem}
-.chip{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);margin:4px 4px 4px 0}
-.chip.Urgente{background:var(--bad);color:#fff;border-color:var(--bad)}.chip.Alta{border-color:var(--bad);color:var(--bad)}
-.acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.f{display:flex;gap:8px;margin-bottom:12px}.f>*{margin:0}
-.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
-.k div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}.k b{display:block;font-size:1.6rem}
-.bar{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;align-items:center;margin:6px 0;font-size:.85rem}
-.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar i{display:block;height:14px;background:var(--acc);border-radius:3px;min-width:3px}.bar b{text-align:right}
-#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1b2a33;color:#fff;padding:10px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:16px;margin-bottom:14px}
+h2{font-size:1.05rem;margin:0 0 4px;font-weight:650}h3{font-size:.95rem;margin:18px 0 8px;padding-top:14px;border-top:1px solid var(--ln);font-weight:650}
+.sub{color:var(--mut);margin:0 0 14px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:12px}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:10px 11px;font:inherit;font-weight:400;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:6px}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.g .w{grid-column:1/-1}
+@media(max-width:560px){.g{grid-template-columns:1fr}}
+.btn{font:inherit;font-size:.88rem;font-weight:600;cursor:pointer;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:6px;padding:8px 14px}
+.btn.p{background:var(--pri);border-color:var(--pri);color:var(--onpri)}.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.d{color:var(--bad)}
+.btn.big{width:100%;padding:12px;font-size:1rem;margin-top:4px}
+@media(prefers-color-scheme:dark){.btn.ok{color:#08210f}}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bar2{display:flex;gap:10px;margin-bottom:12px}.bar2>*{margin:0}.bar2 select{max-width:170px}
+.res{color:var(--mut);font-size:.85rem;margin:0 0 10px}
+.rec{background:var(--sf);border:1px solid var(--ln);border-left:4px solid var(--pen);border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.rec.ok{border-left-color:var(--ok)}
+.rh{display:flex;align-items:center;gap:10px;margin-bottom:8px}.rh b{font-size:1.02rem;flex:1}.num{color:var(--mut);font-weight:600}
+.badge{font-size:.78rem;font-weight:650;padding:2px 10px;border-radius:99px;background:var(--penb);color:var(--pen)}.ok .badge{background:var(--okb);color:var(--ok)}
+.rec p{margin:8px 0}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:0;font-size:.9rem}.dl dt{color:var(--mut)}.dl dd{margin:0}
+.dl a{color:var(--pri);font-weight:600}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px}
+.k div{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:12px 14px;color:var(--mut);font-size:.85rem}.k b{display:block;font-size:1.5rem;color:var(--ink)}
+.bar{display:grid;grid-template-columns:120px 1fr 32px;gap:10px;align-items:center;margin:7px 0;font-size:.85rem}
+.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar i{display:block;height:10px;background:var(--pri);border-radius:2px;min-width:3px}.bar b{text-align:right}
+.calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.calh b{font-size:1.05rem;text-transform:capitalize}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dw{text-align:center;color:var(--mut);font-size:.8rem;font-weight:600;padding:4px 0}
+.day{position:relative;aspect-ratio:1/1;min-height:44px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:6px;font:inherit;cursor:pointer;padding:4px}
+.day.today{border-color:var(--pri);font-weight:700}.day.sel{background:var(--sel);border-color:var(--pri)}
+.dots{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;gap:3px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--pen)}.dots i.r{background:var(--ok)}
+.leg{display:flex;gap:16px;color:var(--mut);font-size:.82rem;margin:10px 0 0}.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--pen)}.leg i.r{background:var(--ok)}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 #toast.on{opacity:1}
+dialog{border:1px solid var(--ln);border-radius:10px;background:var(--sf);color:var(--ink);padding:20px;max-width:360px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size:1rem}dialog .acts{justify-content:flex-end}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.seg button{font:inherit;font-weight:600;padding:14px 8px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;cursor:pointer}
+.seg button b{display:block;font-size:1.7rem;line-height:1.2}
+#s-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
+@media(max-width:440px){nav button{font-size:.74rem;padding:14px 1px}}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 </style></head><body>
-<header><h1>Registro de averías</h1><small id="sub">Mantenimiento</small></header>
+<header><div class="brand"><svg width="38" height="38" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="96" fill="#fff"/><g fill="#d0021b"><circle cx="256" cy="170" r="70" fill="none" stroke="#d0021b" stroke-width="34" stroke-dasharray="27.49 27.49"/><circle cx="256" cy="170" r="64"/></g><circle cx="256" cy="170" r="28" fill="#fff"/><g fill="none" stroke="#d0021b" stroke-width="30"><path d="M91 307V443M91 322H130A31 31 0 0 1 130 384H91M118 384L168 443"/><path d="M421 322H351V428H421M351 375H411"/></g><path fill="#d0021b" d="M206 443V307H240L276 367V307H306V443H272L236 383V443Z"/></svg><div><h1>Registro de averías</h1><small id="sub"></small></div></div></header>
+<nav><button data-t="reg" class="on">Nueva</button><button data-t="his">Registro</button><button data-t="est">Estado</button><button data-t="cal">Calendario</button><button data-t="sta">Resumen</button><button data-t="dat">Datos</button></nav>
 <main>
 <section id="t-reg" class="tab on"><form id="frm" class="card">
-<h2 id="ftitle">Nueva avería</h2>
+<h2 id="ftitle">Nueva avería</h2><p class="sub">Rellena lo básico; el resto puedes completarlo después.</p>
 <div class="g">
-<label class="w">Equipo<input id="f-equipo" list="dl-eq" required placeholder="Ej.: Centrífuga 3, autoclave…" autocomplete="off"></label>
-<label>Ubicación<input id="f-ubic" list="dl-ub" placeholder="Sala o planta" autocomplete="off"></label>
-<label>Fecha y hora<input id="f-fecha" type="datetime-local" required></label>
-<label>Tipo<select id="f-tipo"></select></label>
-<label>Prioridad<select id="f-prio"></select></label>
-<label class="w">Estado<select id="f-estado"></select></label>
-<label class="w">¿Qué ha fallado?<textarea id="f-desc" required></textarea></label>
-<label class="w">Causa<textarea id="f-causa"></textarea></label>
-<label class="w">Solución aplicada<textarea id="f-sol"></textarea></label>
-<label>Tiempo empleado (min)<input id="f-min" type="number" min="0" inputmode="numeric"></label>
-<label>Repuestos usados<input id="f-rep" placeholder="Ej.: fusible 5A"></label>
+<label>Equipo<input id="f-equipo" list="dl-eq" required autocomplete="off"></label>
+<label>Fecha y hora de entrada<input id="f-fecha" type="datetime-local" required></label>
+<label class="w">Motivo de la avería<textarea id="f-motivo" required></textarea></label>
 </div>
-<datalist id="dl-eq"></datalist><datalist id="dl-ub"></datalist>
-<button class="pri" id="save">Guardar avería</button>
-<button type="button" id="cancel" class="sm" hidden style="margin-top:8px">Cancelar edición</button>
+<h3>Quién lo ha traído</h3>
+<div class="g">
+<label>Nombre<input id="f-persona" required autocomplete="off"></label>
+<label>Teléfono<input id="f-tel" type="tel" inputmode="tel" autocomplete="off"></label>
+</div>
+<h3>Reparación (opcional)</h3>
+<div class="g">
+<label class="w">Solución aplicada<textarea id="f-sol"></textarea></label>
+<label class="w">Repuestos usados<input id="f-rep"></label>
+</div>
+<datalist id="dl-eq"></datalist>
+<button class="btn p big" id="save">Guardar avería</button>
+<button type="button" id="cancel" class="btn big" hidden>Cancelar edición</button>
 </form></section>
 
 <section id="t-his" class="tab">
-<div class="f"><input id="h-q" type="search" placeholder="Buscar equipo, avería, solución…"><select id="h-est" style="max-width:170px"></select></div>
-<div id="list"></div></section>
+<div class="bar2"><input id="h-q" type="search" placeholder="Buscar por equipo, persona, teléfono, motivo…"><select id="h-est"><option value="">Todas</option><option value="P">No reparadas</option><option value="R">Reparadas</option></select></div>
+<p class="res" id="hres"></p><div id="list"></div></section>
 
+<section id="t-est" class="tab"><div class="seg"><button id="s-n" data-s="N" class="on">No reparados<b id="cn">0</b></button><button id="s-r" data-s="R">Reparados<b id="cr">0</b></button></div><div id="est-list"></div></section>
+<section id="t-cal" class="tab"><div class="card" id="calbox"></div><div id="cal-list"></div></section>
 <section id="t-sta" class="tab"></section>
 
-<section id="t-dat" class="tab"><div class="card"><h2>Copia de seguridad y Excel</h2>
-<p class="mut">Los datos se guardan solo en este dispositivo. Haz una copia de vez en cuando.</p>
-<div class="acts"><button id="x-csv">Descargar Excel (.csv)</button><button id="x-json">Copia de seguridad (.json)</button><button onclick="$('#imp').click()">Restaurar copia</button></div>
+<section id="t-dat" class="tab"><div class="card"><h2>Excel y copia de seguridad</h2>
+<p class="sub">Los datos se guardan solo en este dispositivo. Descarga una copia de vez en cuando.</p>
+<div class="acts"><button class="btn p" id="x-csv">Descargar Excel (.csv)</button><button class="btn" id="x-json">Copia de seguridad (.json)</button><button class="btn" onclick="$('#imp').click()">Restaurar copia</button></div>
 <input id="imp" type="file" accept=".json,application/json" hidden></div>
-<div class="card"><h2>Borrar todo</h2><button class="dng" id="wipe">Borrar todas las averías</button></div></section>
+<div class="card"><h2>Borrar todo</h2><p class="sub">Elimina todas las averías de este dispositivo.</p><button class="btn d" id="wipe">Borrar todo</button></div></section>
 </main>
-<nav><button data-t="reg" class="on">Registrar</button><button data-t="his">Historial</button><button data-t="sta">Estadísticas</button><button data-t="dat">Datos</button></nav>
-<div id="toast"></div>
+<div id="toast" role="status"></div>
+<dialog id="dlg"><p id="dmsg"></p><div class="acts"><button class="btn" id="dno">No</button><button class="btn p" id="dyes">Sí</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const TIPOS=['Correctivo','Preventivo','Revisión','Calibración'],PRIO=['Baja','Media','Alta','Urgente'],EST=['Abierta','En curso','Resuelta'];
-const opts=a=>a.map(x=>`<option>${x}</option>`).join('');
-$('#f-tipo').innerHTML=opts(TIPOS);$('#f-prio').innerHTML=opts(PRIO);$('#f-estado').innerHTML=opts(EST);
-$('#h-est').innerHTML='<option value="">Todos los estados</option>'+opts(EST);
+const pad=n=>String(n).padStart(2,'0');
 const now=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
 const fmt=f=>new Date(f).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'});
-let db,items=[],editId=null,tt;
+const done=i=>i.estado==='Reparado';
+const wait=i=>{const d=Math.floor((Date.now()-new Date(i.fecha))/864e5);return d<1?'desde hoy':d===1?'1 día':d+' días'};
+let db,items=[],editId=null,tt,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),selDay=null;
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)};
+const ask=m=>new Promise(r=>{const d=$('#dlg');$('#dmsg').textContent=m;d.showModal();$('#dyes').onclick=()=>{d.close();r(true)};$('#dno').onclick=()=>{d.close();r(false)};d.oncancel=()=>r(false)});
 const rq=indexedDB.open('averias',1);
 rq.onupgradeneeded=e=>e.target.result.createObjectStore('items',{keyPath:'id',autoIncrement:true});
 rq.onsuccess=e=>{db=e.target.result;load()};
-rq.onerror=()=>alert('No se puede guardar en este navegador.');
+rq.onerror=()=>alert('Este navegador no permite guardar datos.');
 const st=m=>db.transaction('items',m).objectStore('items');
-function load(){st('readonly').getAll().onsuccess=e=>{items=e.target.result.sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id);render()}}
+function load(){st('readonly').getAll().onsuccess=e=>{items=e.target.result.map(i=>({...i,motivo:i.motivo??i.desc??''})).sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id);render()}}
 const put=o=>new Promise(r=>{st('readwrite').put(o).onsuccess=e=>{load();r(e.target.result)}});
-function resetForm(){editId=null;$('#frm').reset();$('#f-fecha').value=now();$('#f-prio').value='Media';$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
+function resetForm(){editId=null;$('#frm').reset();$('#f-fecha').value=now();$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
 $('#frm').onsubmit=async e=>{e.preventDefault();
- const o={equipo:$('#f-equipo').value.trim(),ubic:$('#f-ubic').value.trim(),fecha:$('#f-fecha').value,tipo:$('#f-tipo').value,prio:$('#f-prio').value,estado:$('#f-estado').value,desc:$('#f-desc').value.trim(),causa:$('#f-causa').value.trim(),sol:$('#f-sol').value.trim(),min:+$('#f-min').value||0,rep:$('#f-rep').value.trim()};
- if(editId)o.id=editId;const id=await put(o);toast(`Avería #${id} guardada`);resetForm();};
+ const old=editId?items.find(x=>x.id===editId):{estado:'Pendiente'};
+ const o={...old,equipo:$('#f-equipo').value.trim(),fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
+ const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);resetForm();};
 $('#cancel').onclick=resetForm;
+function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.id}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
+<dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
+<p>${esc(i.motivo)}</p>${i.sol?`<dl class="dl"><dt>Solución</dt><dd>${esc(i.sol)}</dd></dl>`:''}${i.rep?`<dl class="dl"><dt>Repuestos</dt><dd>${esc(i.rep)}</dd></dl>`:''}
+<div class="acts">${done(i)?`<button class="btn" data-a="reo" data-id="${i.id}">Reabrir</button>`:`<button class="btn ok" data-a="rep" data-id="${i.id}">Reparado</button>`}<button class="btn" data-a="ed" data-id="${i.id}">Editar</button><button class="btn d" data-a="del" data-id="${i.id}">Borrar</button></div></article>`}
 function render(){
- $('#sub').textContent=items.length+' registradas · '+items.filter(i=>i.estado!=='Resuelta').length+' sin resolver';
+ const pe=items.filter(i=>!done(i)).length;
+ $('#sub').textContent=`${items.length} registradas, ${pe} sin reparar`;
  $('#dl-eq').innerHTML=[...new Set(items.map(i=>i.equipo))].map(x=>`<option value="${esc(x)}">`).join('');
- $('#dl-ub').innerHTML=[...new Set(items.map(i=>i.ubic).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join('');
- const q=$('#h-q').value.toLowerCase(),es=$('#h-est').value;
- const l=items.filter(i=>(!es||i.estado===es)&&(!q||[i.equipo,i.ubic,i.desc,i.causa,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
- $('#list').innerHTML=l.map(i=>`<div class="card it ${i.estado.split(' ')[0]}"><div class="top"><b>#${i.id} · ${esc(i.equipo)}</b><span class="mut">${fmt(i.fecha)}</span></div>
- <span class="chip">${i.estado}</span><span class="chip ${i.prio}">${i.prio}</span><span class="chip">${i.tipo}</span>${i.ubic?`<span class="chip">${esc(i.ubic)}</span>`:''}${i.min?`<span class="chip">${i.min} min</span>`:''}
- <div>${esc(i.desc)}</div>${i.causa?`<div class="mut">Causa: ${esc(i.causa)}</div>`:''}${i.sol?`<div class="mut">Solución: ${esc(i.sol)}</div>`:''}${i.rep?`<div class="mut">Repuestos: ${esc(i.rep)}</div>`:''}
- <div class="acts">${i.estado!=='Resuelta'?`<button class="sm" data-a="res" data-id="${i.id}">Marcar resuelta</button>`:''}<button class="sm" data-a="ed" data-id="${i.id}">Editar</button><button class="sm dng" data-a="del" data-id="${i.id}">Borrar</button></div></div>`).join('')||'<div class="card mut">No hay averías que mostrar. Registra la primera en la pestaña «Registrar».</div>';
- stats();}
+ const q=$('#h-q').value.toLowerCase().trim(),es=$('#h-est').value;
+ const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.id,i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
+ $('#hres').textContent=`${l.length} ${l.length===1?'resultado':'resultados'}`;
+ $('#list').innerHTML=l.map(card).join('')||'<div class="card sub">No hay averías que coincidan. Registra una nueva en la pestaña «Nueva».</div>';
+ est();cal();stats();}
 $('#h-q').oninput=render;$('#h-est').onchange=render;
-$('#list').onclick=e=>{const b=e.target.closest('button');if(!b)return;const id=+b.dataset.id,i=items.find(x=>x.id===id);
- if(b.dataset.a==='res'){put({...i,estado:'Resuelta'});toast('Marcada como resuelta')}
- if(b.dataset.a==='del'&&confirm(`¿Borrar la avería #${id}?`))st('readwrite').delete(id).onsuccess=load;
- if(b.dataset.a==='ed'){editId=id;const m={equipo:'equipo',ubic:'ubic',fecha:'fecha',tipo:'tipo',prio:'prio',estado:'estado',desc:'desc',causa:'causa',sol:'sol',min:'min',rep:'rep'};
-  for(const k in m)$('#f-'+k).value=i[k]??'';$('#ftitle').textContent='Editando avería #'+id;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg');scrollTo(0,0)}};
-function bars(map,ord){let e=Object.entries(map);if(ord)e=e.sort().slice(-6);else e=e.sort((a,b)=>b[1]-a[1]).slice(0,8);const m=Math.max(1,...e.map(x=>x[1]));
- return e.map(([k,v])=>`<div class="bar"><span title="${esc(k)}">${esc(k)}</span><i style="width:${v/m*100}%"></i><b>${v}</b></div>`).join('')||'<p class="mut">Sin datos todavía.</p>'}
-function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);m[k]=(m[k]||0)+1;return m},{});
- const tm=items.reduce((s,i)=>s+i.min,0),tq={};items.forEach(i=>{if(i.min)tq[i.equipo]=(tq[i.equipo]||0)+i.min});
- const con=items.filter(i=>i.min);
- $('#t-sta').innerHTML=`<div class="k"><div><b>${items.length}</b>averías</div><div><b>${items.filter(i=>i.estado!=='Resuelta').length}</b>sin resolver</div><div><b>${(tm/60).toFixed(1)} h</b>tiempo total</div><div><b>${con.length?Math.round(tm/con.length):0} min</b>media por avería</div></div>
+let estSel='N';
+function est(){const n=items.filter(i=>!done(i)),r=items.filter(done);$('#cn').textContent=n.length;$('#cr').textContent=r.length;
+ $('#s-n').classList.toggle('on',estSel==='N');$('#s-r').classList.toggle('on',estSel==='R');
+ const l=estSel==='N'?[...n].sort((a,b)=>a.fecha.localeCompare(b.fecha)):[...r].sort((a,b)=>(b.fechaRep||b.fecha).localeCompare(a.fechaRep||a.fecha));
+ $('#est-list').innerHTML=l.map(card).join('')||`<div class="card sub">${estSel==='N'?'No hay equipos sin reparar.':'Todavía no hay equipos reparados.'}</div>`}
+$('#t-est').onclick=e=>{const b=e.target.closest('[data-s]');if(b){estSel=b.dataset.s;est()}};
+function cal(){const y=cm.getFullYear(),m=cm.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),today=now().slice(0,10),by={};
+ items.forEach(i=>{const d=i.fecha.slice(0,10);(by[d]=by[d]||[]).push(i)});
+ let h=`<div class="calh"><button class="btn" data-c="-1" aria-label="Mes anterior">‹</button><b>${cm.toLocaleDateString('es-ES',{month:'long',year:'numeric'})}</b><button class="btn" data-c="1" aria-label="Mes siguiente">›</button></div><div class="cal">`+['L','M','X','J','V','S','D'].map(d=>`<div class="dw">${d}</div>`).join('')+'<div></div>'.repeat(first);
+ for(let d=1;d<=dim;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,l=by[k]||[],p=l.filter(x=>!done(x)).length,r=l.length-p;
+  h+=`<button class="day${k===today?' today':''}${k===selDay?' sel':''}" data-d="${k}" aria-label="${d}, ${l.length} averías">${d}${l.length?`<span class="dots">${p?'<i></i>':''}${r?'<i class="r"></i>':''}</span>`:''}</button>`}
+ $('#calbox').innerHTML=h+`</div><p class="leg"><span><i></i>No reparado</span><span><i class="r"></i>Reparado</span></p>`;
+ const s=selDay&&(by[selDay]||[]);
+ $('#cal-list').innerHTML=selDay?(`<p class="res">${new Date(selDay+'T12:00').toLocaleDateString('es-ES',{dateStyle:'full'})}: ${s.length} ${s.length===1?'avería':'averías'}</p>`+[...s].sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(card).join('')):'<p class="res">Toca un día para ver sus averías.</p>'}
+$('#t-cal').onclick=e=>{const c=e.target.closest('[data-c]'),d=e.target.closest('[data-d]');
+ if(c){cm=new Date(cm.getFullYear(),cm.getMonth()+ +c.dataset.c,1);selDay=null;cal()}
+ if(d){selDay=d.dataset.d;cal()}};
+function bars(map,ord){let e=Object.entries(map);e=ord?e.sort().slice(-6):e.sort((a,b)=>b[1]-a[1]).slice(0,8);const m=Math.max(1,...e.map(x=>x[1]));
+ return e.map(([k,v])=>`<div class="bar"><span title="${esc(k)}">${esc(k)}</span><i style="width:${v/m*100}%"></i><b>${v}</b></div>`).join('')||'<p class="sub">Sin datos todavía.</p>'}
+function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);if(k)m[k]=(m[k]||0)+1;return m},{});
+ const rp=items.filter(i=>done(i)&&i.fechaRep),av=rp.length?rp.reduce((s,i)=>s+(new Date(i.fechaRep)-new Date(i.fecha))/864e5,0)/rp.length:null;
+ $('#t-sta').innerHTML=`<div class="k"><div><b>${items.length}</b>Averías</div><div><b>${items.filter(i=>!done(i)).length}</b>No reparadas</div><div><b>${items.filter(done).length}</b>Reparadas</div><div><b>${av===null?'-':av.toFixed(1).replace('.',',')+' d'}</b>Tiempo medio hasta reparar</div></div>
  <div class="card"><h2>Equipos con más averías</h2>${bars(c(i=>i.equipo))}</div>
- <div class="card"><h2>Minutos dedicados por equipo</h2>${bars(tq)}</div>
- <div class="card"><h2>Por tipo</h2>${bars(c(i=>i.tipo))}</div>
+ <div class="card"><h2>Quién trae más equipos</h2>${bars(c(i=>i.persona))}</div>
  <div class="card"><h2>Últimos 6 meses</h2>${bars(c(i=>i.fecha.slice(0,7)),1)}</div>`}
-function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
+function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=+b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
+ if(a==='rep'&&await ask(`¿Marcar la avería #${id} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
+ if(a==='reo'&&await ask(`¿Volver a abrir la avería #${id}?`)){const o={...i,estado:'Pendiente'};delete o.fechaRep;await put(o)}
+ if(a==='del'&&await ask(`¿Borrar la avería #${id}? No se puede deshacer.`))st('readwrite').delete(id).onsuccess=load;
+ if(a==='ed'){editId=id;const m={equipo:'equipo',fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';
+  $('#ftitle').textContent='Editando avería #'+id;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg')}});
 const dl=(n,t,y)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click()};
-const day=()=>new Date().toISOString().slice(0,10);
+const day=()=>now().slice(0,10);
 $('#x-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
- const H=['Nº','Fecha','Equipo','Ubicación','Tipo','Prioridad','Estado','Avería','Causa','Solución','Minutos','Repuestos'];
- const r=[...items].sort((a,b)=>a.id-b.id).map(i=>[i.id,i.fecha.replace('T',' '),i.equipo,i.ubic,i.tipo,i.prio,i.estado,i.desc,i.causa,i.sol,i.min,i.rep].map(q).join(';'));
+ const H=['Nº','Fecha entrada','Equipo','Persona','Teléfono','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
+ const r=[...items].sort((a,b)=>a.id-b.id).map(i=>[i.id,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
  dl(`averias-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
 $('#x-json').onclick=()=>dl(`averias-copia-${day()}.json`,JSON.stringify(items),'application/json');
 $('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;
- try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!confirm(`Se reemplazarán los datos actuales por ${d.length} registros de la copia. ¿Continuar?`))return;
+ try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!await ask(`Se reemplazarán los datos actuales por ${d.length} registros de la copia. ¿Continuar?`))return;
  const s=db.transaction('items','readwrite'),o=s.objectStore('items');o.clear();d.forEach(x=>o.put(x));s.oncomplete=()=>{load();toast('Copia restaurada')}}catch{alert('El archivo no es una copia válida.')}e.target.value=''};
-$('#wipe').onclick=()=>{if(confirm('¿Borrar TODAS las averías? No se puede deshacer.'))st('readwrite').clear().onsuccess=()=>{load();toast('Datos borrados')}};
+$('#wipe').onclick=async()=>{if(await ask('¿Borrar TODAS las averías? No se puede deshacer.'))st('readwrite').clear().onsuccess=()=>{load();toast('Datos borrados')}};
 resetForm();navigator.storage?.persist?.();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>

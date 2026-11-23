@@ -1,1 +1,1 @@
-{"name":"Registro de averías","short_name":"Averías","start_url":"./","scope":"./","display":"standalone","background_color":"#1b2a33","theme_color":"#1b2a33","icons":[{"src":"icon.svg","sizes":"192x192 512x512","type":"image/svg+xml","purpose":"any"}]}
+{"name":"Registro de averías","short_name":"Averías","start_url":"./","scope":"./","display":"standalone","background_color":"#ffffff","theme_color":"#0b5c6b","icons":[{"src":"icon.svg","sizes":"192x192 512x512","type":"image/svg+xml","purpose":"any"}]}
