@@ -61,6 +61,7 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 .seg button b{display:block;font-size:1.7rem;line-height:1.2}
 #s-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
 @media(max-width:440px){nav button{font-size:.74rem;padding:14px 1px}}
+.lg{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}.lg[hidden]{display:none}.lg .card{width:100%;max-width:380px;margin:0}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 </style></head><body>
 <header><div class="brand"><svg width="38" height="38" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="96" fill="#fff"/><g fill="#d0021b"><circle cx="256" cy="170" r="70" fill="none" stroke="#d0021b" stroke-width="34" stroke-dasharray="27.49 27.49"/><circle cx="256" cy="170" r="64"/></g><circle cx="256" cy="170" r="28" fill="#fff"/><g fill="none" stroke="#d0021b" stroke-width="30"><path d="M91 307V443M91 322H130A31 31 0 0 1 130 384H91M118 384L168 443"/><path d="M421 322H351V428H421M351 375H411"/></g><path fill="#d0021b" d="M206 443V307H240L276 367V307H306V443H272L236 383V443Z"/></svg><div><h1>Registro de averías</h1><small id="sub"></small></div></div></header>
@@ -97,11 +98,13 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 <section id="t-sta" class="tab"></section>
 
 <section id="t-dat" class="tab"><div class="card"><h2>Excel y copia de seguridad</h2>
-<p class="sub">Los datos se guardan solo en este dispositivo. Descarga una copia de vez en cuando.</p>
+<p class="sub">Los datos se guardan en la nube y los ve todo el equipo. Descarga una copia de vez en cuando.</p>
 <div class="acts"><button class="btn p" id="x-csv">Descargar Excel (.csv)</button><button class="btn" id="x-json">Copia de seguridad (.json)</button><button class="btn" onclick="$('#imp').click()">Restaurar copia</button></div>
 <input id="imp" type="file" accept=".json,application/json" hidden></div>
-<div class="card"><h2>Borrar todo</h2><p class="sub">Elimina todas las averías de este dispositivo.</p><button class="btn d" id="wipe">Borrar todo</button></div></section>
+<div class="card"><h2>Borrar todo</h2><p class="sub">Elimina todas las averías de este dispositivo.</p><button class="btn d" id="wipe">Borrar todo</button></div>
+<div class="card"><h2>Sesión</h2><p class="sub">Los datos se comparten con todo el equipo y también funcionan sin conexión.</p><button class="btn" id="out">Cerrar sesión</button></div></section>
 </main>
+<div id="login" class="lg" hidden><form id="lf" class="card"><h2>Acceso del equipo</h2><p class="sub">Entra con el correo y la contraseña del equipo.</p><label>Correo<input id="l-mail" type="email" autocomplete="username" required></label><label>Contraseña<input id="l-pass" type="password" autocomplete="current-password" required></label><p id="l-err" class="res" style="color:var(--bad)"></p><button class="btn p big">Entrar</button></form></div>
 <div id="toast" role="status"></div>
 <dialog id="dlg"><p id="dmsg"></p><div class="acts"><button class="btn" id="dno">No</button><button class="btn p" id="dyes">Sí</button></div></dialog>
 <script>
@@ -115,20 +118,16 @@ const wait=i=>{const d=Math.floor((Date.now()-new Date(i.fecha))/864e5);return d
 let db,items=[],editId=null,tt,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),selDay=null;
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)};
 const ask=m=>new Promise(r=>{const d=$('#dlg');$('#dmsg').textContent=m;d.showModal();$('#dyes').onclick=()=>{d.close();r(true)};$('#dno').onclick=()=>{d.close();r(false)};d.oncancel=()=>r(false)});
-const rq=indexedDB.open('averias',1);
-rq.onupgradeneeded=e=>e.target.result.createObjectStore('items',{keyPath:'id',autoIncrement:true});
-rq.onsuccess=e=>{db=e.target.result;load()};
-rq.onerror=()=>alert('Este navegador no permite guardar datos.');
-const st=m=>db.transaction('items',m).objectStore('items');
-function load(){st('readonly').getAll().onsuccess=e=>{items=e.target.result.map(i=>({...i,motivo:i.motivo??i.desc??''})).sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id);render()}}
-const put=o=>new Promise(r=>{st('readwrite').put(o).onsuccess=e=>{load();r(e.target.result)}});
+function onData(a){items=a.sort((x,y)=>y.fecha.localeCompare(x.fecha)||y.num-x.num);render()}
+const put=async o=>{DB.put(o);return o.num};
 function resetForm(){editId=null;$('#frm').reset();$('#f-fecha').value=now();$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
 $('#frm').onsubmit=async e=>{e.preventDefault();
  const old=editId?items.find(x=>x.id===editId):{estado:'Pendiente'};
  const o={...old,equipo:$('#f-equipo').value.trim(),fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
+ if(!editId)o.num=Math.max(0,...items.map(i=>i.num||0))+1;
  const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);resetForm();};
 $('#cancel').onclick=resetForm;
-function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.id}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
+function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.num}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
 <dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
 <p>${esc(i.motivo)}</p>${i.sol?`<dl class="dl"><dt>Solución</dt><dd>${esc(i.sol)}</dd></dl>`:''}${i.rep?`<dl class="dl"><dt>Repuestos</dt><dd>${esc(i.rep)}</dd></dl>`:''}
 <div class="acts">${done(i)?`<button class="btn" data-a="reo" data-id="${i.id}">Reabrir</button>`:`<button class="btn ok" data-a="rep" data-id="${i.id}">Reparado</button>`}<button class="btn" data-a="ed" data-id="${i.id}">Editar</button><button class="btn d" data-a="del" data-id="${i.id}">Borrar</button></div></article>`}
@@ -137,7 +136,7 @@ function render(){
  $('#sub').textContent=`${items.length} registradas, ${pe} sin reparar`;
  $('#dl-eq').innerHTML=[...new Set(items.map(i=>i.equipo))].map(x=>`<option value="${esc(x)}">`).join('');
  const q=$('#h-q').value.toLowerCase().trim(),es=$('#h-est').value;
- const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.id,i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
+ const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.num,i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
  $('#hres').textContent=`${l.length} ${l.length===1?'resultado':'resultados'}`;
  $('#list').innerHTML=l.map(card).join('')||'<div class="card sub">No hay averías que coincidan. Registra una nueva en la pestaña «Nueva».</div>';
  est();cal();stats();}
@@ -169,23 +168,50 @@ function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);if(k)m[k]=(m[k]||0
  <div class="card"><h2>Últimos 6 meses</h2>${bars(c(i=>i.fecha.slice(0,7)),1)}</div>`}
 function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
-document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=+b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
- if(a==='rep'&&await ask(`¿Marcar la avería #${id} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
- if(a==='reo'&&await ask(`¿Volver a abrir la avería #${id}?`)){const o={...i,estado:'Pendiente'};delete o.fechaRep;await put(o)}
- if(a==='del'&&await ask(`¿Borrar la avería #${id}? No se puede deshacer.`))st('readwrite').delete(id).onsuccess=load;
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
+ if(a==='rep'&&await ask(`¿Marcar la avería #${i.num} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
+ if(a==='reo'&&await ask(`¿Volver a abrir la avería #${i.num}?`)){const o={...i,estado:'Pendiente'};delete o.fechaRep;await put(o)}
+ if(a==='del'&&await ask(`¿Borrar la avería #${i.num}? Se borrará para todo el equipo.`))DB.del(id);
  if(a==='ed'){editId=id;const m={equipo:'equipo',fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';
-  $('#ftitle').textContent='Editando avería #'+id;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg')}});
+  $('#ftitle').textContent='Editando avería #'+i.num;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg')}});
 const dl=(n,t,y)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click()};
 const day=()=>now().slice(0,10);
 $('#x-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
  const H=['Nº','Fecha entrada','Equipo','Persona','Teléfono','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
- const r=[...items].sort((a,b)=>a.id-b.id).map(i=>[i.id,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
+ const r=[...items].sort((a,b)=>a.num-b.num).map(i=>[i.num,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
  dl(`averias-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
 $('#x-json').onclick=()=>dl(`averias-copia-${day()}.json`,JSON.stringify(items),'application/json');
 $('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;
- try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!await ask(`Se reemplazarán los datos actuales por ${d.length} registros de la copia. ¿Continuar?`))return;
- const s=db.transaction('items','readwrite'),o=s.objectStore('items');o.clear();d.forEach(x=>o.put(x));s.oncomplete=()=>{load();toast('Copia restaurada')}}catch{alert('El archivo no es una copia válida.')}e.target.value=''};
-$('#wipe').onclick=async()=>{if(await ask('¿Borrar TODAS las averías? No se puede deshacer.'))st('readwrite').clear().onsuccess=()=>{load();toast('Datos borrados')}};
+ try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!await ask(`Se reemplazarán los datos de todo el equipo por ${d.length} registros de la copia. ¿Continuar?`))return;
+ await DB.wipe();await DB.bulk(d);toast('Copia restaurada')}catch{alert('El archivo no es una copia válida.')}e.target.value=''};
+$('#wipe').onclick=async()=>{if(await ask('¿Borrar TODAS las averías de todo el equipo? No se puede deshacer.')){await DB.wipe();toast('Datos borrados')}};
 resetForm();navigator.storage?.persist?.();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-</script></body></html>
+</script><script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,addDoc,deleteDoc,onSnapshot,getDocs,writeBatch} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+/* ===== PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (los valores entre comillas) ===== */
+const firebaseConfig={apiKey:"AIzaSyACS5v0pL5BjYFy81hZMfoMoMQOC_MAlKU",authDomain:"registro-de-averias.firebaseapp.com",projectId:"registro-de-averias",storageBucket:"registro-de-averias.firebasestorage.app",messagingSenderId:"654117606010",appId:"1:654117606010:web:53574152d858d02b1e61c3"};
+/* ================================================================================ */
+if(!firebaseConfig.apiKey){$('#login').hidden=false;$('#lf').innerHTML='<h2>Falta configurar Firebase</h2><p class="sub">Pega tu firebaseConfig en el archivo index.html, en el bloque marcado.</p>'}
+else{
+const app=initializeApp(firebaseConfig),auth=getAuth(app);
+const fs=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+const col=collection(fs,'averias'),fail=()=>toast('No se ha podido guardar. Revisa el acceso.');
+const run=async ops=>{for(let i=0;i<ops.length;i+=400){const b=writeBatch(fs);ops.slice(i,i+400).forEach(f=>f(b));await b.commit()}};
+window.DB={
+ put:o=>{const {id,...d}=o;(id?setDoc(doc(col,id),d):addDoc(col,d)).catch(fail)},
+ del:id=>deleteDoc(doc(col,id)).catch(fail),
+ wipe:async()=>{const s=await getDocs(col);await run(s.docs.map(d=>b=>b.delete(d.ref)))},
+ bulk:a=>run(a.map(x=>{const {id,...d}=x;d.num=d.num??(+id||0);const r=doc(col);return b=>b.set(r,d)})),
+ logout:()=>signOut(auth)};
+$('#out').onclick=()=>DB.logout();
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#l-err').textContent='';try{await signInWithEmailAndPassword(auth,$('#l-mail').value.trim(),$('#l-pass').value)}catch{$('#l-err').textContent='Correo o contraseña incorrectos.'}};
+let unsub=null;
+onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;if(unsub){unsub();unsub=null}
+ if(u)unsub=onSnapshot(col,s=>onData(s.docs.map(d=>{const x=d.data();return {...x,id:d.id,num:x.num||0,motivo:x.motivo??''}})),()=>toast('Sin acceso a los datos'));
+ else onData([])});
+}
+</script>
+</body></html>
