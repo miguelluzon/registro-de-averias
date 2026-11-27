@@ -12,8 +12,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",sy
 header{background:var(--sf);border-bottom:1px solid var(--ln)}
 .brand{max-width:900px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
 .brand h1{margin:0;font-size:1.1rem;font-weight:650}.brand small{color:var(--mut)}
-nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-size:.82rem;padding:14px 2px;cursor:pointer;border-top:3px solid transparent}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;overflow-x:auto;scrollbar-width:none;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom)}nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;white-space:nowrap;border:0;background:none;color:var(--mut);font:inherit;font-size:.85rem;padding:14px 13px;cursor:pointer;border-top:3px solid transparent}
 nav button.on{color:var(--pri);font-weight:650;border-top-color:var(--pri)}
 @media(min-width:760px){body{padding-bottom:0}nav{position:sticky;top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--ln);padding:0 calc(50% - 450px)}nav button{flex:none;padding:13px 22px;font-size:.95rem;border-top:0;border-bottom:3px solid transparent}nav button.on{border-bottom-color:var(--pri)}}
 main{max-width:900px;margin:0 auto;padding:16px}
@@ -59,13 +59,13 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .seg button{font:inherit;font-weight:600;padding:14px 8px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;cursor:pointer}
 .seg button b{display:block;font-size:1.7rem;line-height:1.2}
-#s-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
-@media(max-width:440px){nav button{font-size:.74rem;padding:14px 1px}}
+#s-n.on,#ps-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on,#ps-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
+summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}.rec.late{border-left-color:var(--bad)}.rec.late .badge{background:var(--bad);color:var(--sf)}
 .lg{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}.lg[hidden]{display:none}.lg .card{width:100%;max-width:380px;margin:0}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 </style></head><body>
 <header><div class="brand"><svg width="38" height="38" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="96" fill="#fff"/><g fill="#d0021b"><circle cx="256" cy="170" r="70" fill="none" stroke="#d0021b" stroke-width="34" stroke-dasharray="27.49 27.49"/><circle cx="256" cy="170" r="64"/></g><circle cx="256" cy="170" r="28" fill="#fff"/><g fill="none" stroke="#d0021b" stroke-width="30"><path d="M91 307V443M91 322H130A31 31 0 0 1 130 384H91M118 384L168 443"/><path d="M421 322H351V428H421M351 375H411"/></g><path fill="#d0021b" d="M206 443V307H240L276 367V307H306V443H272L236 383V443Z"/></svg><div><h1>Registro de averías</h1><small id="sub"></small></div></div></header>
-<nav><button data-t="reg" class="on">Nueva</button><button data-t="his">Registro</button><button data-t="est">Estado</button><button data-t="cal">Calendario</button><button data-t="sta">Resumen</button><button data-t="dat">Datos</button></nav>
+<nav><button data-t="reg" class="on">Nueva</button><button data-t="his">Registro</button><button data-t="est">Estado</button><button data-t="cal">Calendario</button><button data-t="pre">Préstamos</button><button data-t="sta">Resumen</button><button data-t="dat">Datos</button></nav>
 <main>
 <section id="t-reg" class="tab on"><form id="frm" class="card">
 <h2 id="ftitle">Nueva avería</h2><p class="sub">Rellena lo básico; el resto puedes completarlo después.</p>
@@ -95,13 +95,23 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 
 <section id="t-est" class="tab"><div class="seg"><button id="s-n" data-s="N" class="on">No reparados<b id="cn">0</b></button><button id="s-r" data-s="R">Reparados<b id="cr">0</b></button></div><div id="est-list"></div></section>
 <section id="t-cal" class="tab"><div class="card" id="calbox"></div><div id="cal-list"></div></section>
+<section id="t-pre" class="tab">
+<details id="pdet" class="card"><summary id="psum">Nuevo préstamo</summary><form id="pf">
+<div class="g"><label class="w">Qué se presta<input id="p-obj" required autocomplete="off" placeholder="Herramienta o equipo"></label>
+<label>Quién se lo lleva<input id="p-per" required autocomplete="off"></label><label>Teléfono<input id="p-tel" type="tel" inputmode="tel" autocomplete="off"></label>
+<label>Fecha del préstamo<input id="p-fecha" type="datetime-local" required></label><label>Devolución prevista<input id="p-prev" type="date"></label>
+<label class="w">Notas<textarea id="p-nota"></textarea></label></div>
+<button class="btn p big" id="psave">Guardar préstamo</button><button type="button" id="pcancel" class="btn big" hidden style="margin-top:8px">Cancelar edición</button></form></details>
+<div class="seg"><button id="ps-n" data-ps="N" class="on">Prestados<b id="pcn">0</b></button><button id="ps-r" data-ps="R">Devueltos<b id="pcr">0</b></button></div>
+<div class="bar2"><input id="p-q" type="search" placeholder="Buscar por objeto, persona o teléfono…"></div>
+<div id="plist"></div></section>
 <section id="t-sta" class="tab"></section>
 
 <section id="t-dat" class="tab"><div class="card"><h2>Excel y copia de seguridad</h2>
 <p class="sub">Los datos se guardan en la nube y los ve todo el equipo. Descarga una copia de vez en cuando.</p>
-<div class="acts"><button class="btn p" id="x-csv">Descargar Excel (.csv)</button><button class="btn" id="x-json">Copia de seguridad (.json)</button><button class="btn" onclick="$('#imp').click()">Restaurar copia</button></div>
+<div class="acts"><button class="btn p" id="x-csv">Excel de averías (.csv)</button><button class="btn" id="x-pcsv">Excel de préstamos (.csv)</button><button class="btn" id="x-json">Copia de seguridad (.json)</button><button class="btn" onclick="$('#imp').click()">Restaurar copia</button></div>
 <input id="imp" type="file" accept=".json,application/json" hidden></div>
-<div class="card"><h2>Borrar todo</h2><p class="sub">Elimina todas las averías de este dispositivo.</p><button class="btn d" id="wipe">Borrar todo</button></div>
+<div class="card"><h2>Borrar todo</h2><p class="sub">Elimina todas las averías para todo el equipo. Los préstamos no se tocan.</p><button class="btn d" id="wipe">Borrar todo</button></div>
 <div class="card"><h2>Sesión</h2><p class="sub">Los datos se comparten con todo el equipo y también funcionan sin conexión.</p><button class="btn" id="out">Cerrar sesión</button></div></section>
 </main>
 <div id="login" class="lg" hidden><form id="lf" class="card"><h2>Acceso del equipo</h2><p class="sub">Entra con el correo y la contraseña del equipo.</p><label>Correo<input id="l-mail" type="email" autocomplete="username" required></label><label>Contraseña<input id="l-pass" type="password" autocomplete="current-password" required></label><p id="l-err" class="res" style="color:var(--bad)"></p><button class="btn p big">Entrar</button></form></div>
@@ -125,7 +135,36 @@ $('#frm').onsubmit=async e=>{e.preventDefault();
  const old=editId?items.find(x=>x.id===editId):{estado:'Pendiente'};
  const o={...old,equipo:$('#f-equipo').value.trim(),fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
  if(!editId)o.num=Math.max(0,...items.map(i=>i.num||0))+1;
- const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);resetForm();};
+ const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);let loans=[],psel='N',pedit=null;
+const isDev=l=>l.estado==='Devuelto',late=l=>!isDev(l)&&l.prev&&l.prev<now().slice(0,10);
+function onLoans(a){loans=a;prest()}
+function pcard(l){const lt=late(l);return `<article class="rec ${isDev(l)?'ok':''} ${lt?'late':''}"><div class="rh"><b>${esc(l.obj)}</b><span class="badge">${isDev(l)?'Devuelto':lt?'Vencido':'Prestado'}</span></div>
+<dl class="dl"><dt>Lo tiene</dt><dd>${esc(l.per)}</dd>${l.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(l.tel.replace(/[^\d+]/g,''))}">${esc(l.tel)}</a></dd>`:''}<dt>Prestado</dt><dd>${fmt(l.fecha)}</dd>${l.prev?`<dt>Devolver el</dt><dd>${new Date(l.prev+'T12:00').toLocaleDateString('es-ES')}</dd>`:''}${isDev(l)&&l.fechaDev?`<dt>Devuelto</dt><dd>${fmt(l.fechaDev)}</dd>`:''}</dl>
+${l.nota?`<p>${esc(l.nota)}</p>`:''}<div class="acts">${isDev(l)?`<button class="btn" data-pa="reo" data-id="${l.id}">Reabrir</button>`:`<button class="btn ok" data-pa="dev" data-id="${l.id}">Devuelto</button>`}<button class="btn" data-pa="ed" data-id="${l.id}">Editar</button><button class="btn d" data-pa="del" data-id="${l.id}">Borrar</button></div></article>`}
+function prest(){const n=loans.filter(l=>!isDev(l)),r=loans.filter(isDev);$('#pcn').textContent=n.length;$('#pcr').textContent=r.length;
+ $('#ps-n').classList.toggle('on',psel==='N');$('#ps-r').classList.toggle('on',psel==='R');
+ const q=$('#p-q').value.toLowerCase().trim();
+ const base=psel==='N'?[...n].sort((a,b)=>(late(b)-late(a))||a.fecha.localeCompare(b.fecha)):[...r].sort((a,b)=>(b.fechaDev||b.fecha).localeCompare(a.fechaDev||a.fecha));
+ const l=base.filter(x=>!q||[x.obj,x.per,x.tel,x.nota].join(' ').toLowerCase().includes(q));
+ $('#plist').innerHTML=l.map(pcard).join('')||`<div class="card sub">${q?'No hay préstamos que coincidan.':psel==='N'?'No hay nada prestado ahora mismo.':'Todavía no hay préstamos devueltos.'}</div>`}
+function presetForm(){pedit=null;$('#pf').reset();$('#p-fecha').value=now();$('#psave').textContent='Guardar préstamo';$('#pcancel').hidden=true;$('#psum').textContent='Nuevo préstamo'}
+$('#pf').onsubmit=e=>{e.preventDefault();const old=pedit?loans.find(x=>x.id===pedit):{estado:'Prestado'};
+ PDB.put({...old,obj:$('#p-obj').value.trim(),per:$('#p-per').value.trim(),tel:$('#p-tel').value.trim(),fecha:$('#p-fecha').value,prev:$('#p-prev').value,nota:$('#p-nota').value.trim()});
+ toast(pedit?'Préstamo actualizado':'Préstamo guardado');presetForm();$('#pdet').open=false};
+$('#pcancel').onclick=()=>{presetForm();$('#pdet').open=false};
+$('#p-q').oninput=prest;
+$('#t-pre').onclick=e=>{const b=e.target.closest('[data-ps]');if(b){psel=b.dataset.ps;prest()}};
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-pa]');if(!b)return;const id=b.dataset.id,i=loans.find(x=>x.id===id),a=b.dataset.pa;if(!i)return;
+ if(a==='dev'&&await ask(`¿Marcar «${i.obj}» como devuelto por ${i.per}?`)){PDB.put({...i,estado:'Devuelto',fechaDev:now()});toast('Marcado como devuelto')}
+ if(a==='reo'&&await ask(`¿Volver a marcar «${i.obj}» como prestado?`)){const o={...i,estado:'Prestado'};delete o.fechaDev;PDB.put(o)}
+ if(a==='del'&&await ask(`¿Borrar el préstamo de «${i.obj}»? Se borrará para todo el equipo.`))PDB.del(id);
+ if(a==='ed'){pedit=id;$('#p-obj').value=i.obj;$('#p-per').value=i.per;$('#p-tel').value=i.tel||'';$('#p-fecha').value=i.fecha;$('#p-prev').value=i.prev||'';$('#p-nota').value=i.nota||'';
+  $('#psum').textContent='Editando préstamo';$('#psave').textContent='Guardar cambios';$('#pcancel').hidden=false;$('#pdet').open=true;$('#pdet').scrollIntoView({block:'start'})}});
+$('#x-pcsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
+ const H=['Objeto','Persona','Teléfono','Fecha préstamo','Devolución prevista','Estado','Fecha devolución','Notas'];
+ const r=[...loans].sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(l=>[l.obj,l.per,l.tel,l.fecha.replace('T',' '),l.prev,isDev(l)?'Devuelto':'Prestado',(l.fechaDev||'').replace('T',' '),l.nota].map(q).join(';'));
+ dl(`prestamos-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
+resetForm();presetForm();};
 $('#cancel').onclick=resetForm;
 function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.num}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
 <dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
@@ -166,7 +205,7 @@ function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);if(k)m[k]=(m[k]||0
  <div class="card"><h2>Equipos con más averías</h2>${bars(c(i=>i.equipo))}</div>
  <div class="card"><h2>Quién trae más equipos</h2>${bars(c(i=>i.persona))}</div>
  <div class="card"><h2>Últimos 6 meses</h2>${bars(c(i=>i.fecha.slice(0,7)),1)}</div>`}
-function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));scrollTo(0,0)}
+function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('nav button.on')?.scrollIntoView({inline:'center',block:'nearest'});scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
  if(a==='rep'&&await ask(`¿Marcar la avería #${i.num} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
@@ -206,12 +245,15 @@ window.DB={
  wipe:async()=>{const s=await getDocs(col);await run(s.docs.map(d=>b=>b.delete(d.ref)))},
  bulk:a=>run(a.map(x=>{const {id,...d}=x;d.num=d.num??(+id||0);const r=doc(col);return b=>b.set(r,d)})),
  logout:()=>signOut(auth)};
+const pcol=collection(fs,'prestamos');
+window.PDB={put:o=>{const {id,...d}=o;(id?setDoc(doc(pcol,id),d):addDoc(pcol,d)).catch(fail)},del:id=>deleteDoc(doc(pcol,id)).catch(fail)};
 $('#out').onclick=()=>DB.logout();
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#l-err').textContent='';try{await signInWithEmailAndPassword(auth,$('#l-mail').value.trim(),$('#l-pass').value)}catch{$('#l-err').textContent='Correo o contraseña incorrectos.'}};
-let unsub=null;
-onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;if(unsub){unsub();unsub=null}
+let unsub=null,unsubP=null;
+onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;if(unsub){unsub();unsub=null}if(unsubP){unsubP();unsubP=null}
+ if(u)unsubP=onSnapshot(pcol,s=>onLoans(s.docs.map(d=>({...d.data(),id:d.id}))),()=>toast('Sin acceso a los préstamos. Revisa las reglas de Firebase.'));
  if(u)unsub=onSnapshot(col,s=>onData(s.docs.map(d=>{const x=d.data();return {...x,id:d.id,num:x.num||0,motivo:x.motivo??''}})),()=>toast('Sin acceso a los datos'));
- else onData([])});
+ else{onData([]);onLoans([])}});
 }
 </script>
 </body></html>
