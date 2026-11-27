@@ -52,7 +52,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{out
 .day.today{border-color:var(--pri);font-weight:700}.day.sel{background:var(--sel);border-color:var(--pri)}
 .dots{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;gap:3px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--pen)}.dots i.r{background:var(--ok)}
 .leg{display:flex;gap:16px;color:var(--mut);font-size:.82rem;margin:10px 0 0}.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--pen)}.leg i.r{background:var(--ok)}
-#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+#toast{max-width:calc(100% - 32px);text-align:center;position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 #toast.on{opacity:1}
 dialog{border:1px solid var(--ln);border-radius:10px;background:var(--sf);color:var(--ink);padding:20px;max-width:360px;width:calc(100% - 32px)}
 dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size:1rem}dialog .acts{justify-content:flex-end}
@@ -60,11 +60,12 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 .seg button{font:inherit;font-weight:600;padding:14px 8px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;cursor:pointer}
 .seg button b{display:block;font-size:1.7rem;line-height:1.2}
 #s-n.on,#ps-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on,#ps-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
-summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}.rec.late{border-left-color:var(--bad)}.rec.late .badge{background:var(--bad);color:var(--sf)}
+.clock{margin-left:auto;text-align:right;font-size:.82rem;color:var(--mut);line-height:1.25;white-space:nowrap}.clock b{display:block;color:var(--ink);font-size:1.15rem}.brand>div:nth-child(2){min-width:0}
+summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 .lg{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}.lg[hidden]{display:none}.lg .card{width:100%;max-width:380px;margin:0}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 </style></head><body>
-<header><div class="brand"><svg width="38" height="38" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="96" fill="#fff"/><g fill="#d0021b"><circle cx="256" cy="170" r="70" fill="none" stroke="#d0021b" stroke-width="34" stroke-dasharray="27.49 27.49"/><circle cx="256" cy="170" r="64"/></g><circle cx="256" cy="170" r="28" fill="#fff"/><g fill="none" stroke="#d0021b" stroke-width="30"><path d="M91 307V443M91 322H130A31 31 0 0 1 130 384H91M118 384L168 443"/><path d="M421 322H351V428H421M351 375H411"/></g><path fill="#d0021b" d="M206 443V307H240L276 367V307H306V443H272L236 383V443Z"/></svg><div><h1>Registro de averías</h1><small id="sub"></small></div></div></header>
+<header><div class="brand"><svg width="38" height="38" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="96" fill="#fff"/><g fill="#d0021b"><circle cx="256" cy="170" r="70" fill="none" stroke="#d0021b" stroke-width="34" stroke-dasharray="27.49 27.49"/><circle cx="256" cy="170" r="64"/></g><circle cx="256" cy="170" r="28" fill="#fff"/><g fill="none" stroke="#d0021b" stroke-width="30"><path d="M91 307V443M91 322H130A31 31 0 0 1 130 384H91M118 384L168 443"/><path d="M421 322H351V428H421M351 375H411"/></g><path fill="#d0021b" d="M206 443V307H240L276 367V307H306V443H272L236 383V443Z"/></svg><div><h1>Registro de averías</h1><small id="sub"></small></div><div class="clock" id="clock"></div></div></header>
 <nav><button data-t="reg" class="on">Nueva</button><button data-t="his">Registro</button><button data-t="est">Estado</button><button data-t="cal">Calendario</button><button data-t="pre">Préstamos</button><button data-t="sta">Resumen</button><button data-t="dat">Datos</button></nav>
 <main>
 <section id="t-reg" class="tab on"><form id="frm" class="card">
@@ -78,6 +79,7 @@ summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 <div class="g">
 <label>Nombre<input id="f-persona" required autocomplete="off"></label>
 <label>Teléfono<input id="f-tel" type="tel" inputmode="tel" autocomplete="off"></label>
+<label class="w">Correo<input id="f-correo" type="email" inputmode="email" autocomplete="off"></label>
 </div>
 <h3>Reparación (opcional)</h3>
 <div class="g">
@@ -99,7 +101,8 @@ summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 <details id="pdet" class="card"><summary id="psum">Nuevo préstamo</summary><form id="pf">
 <div class="g"><label class="w">Qué se presta<input id="p-obj" required autocomplete="off" placeholder="Herramienta o equipo"></label>
 <label>Quién se lo lleva<input id="p-per" required autocomplete="off"></label><label>Teléfono<input id="p-tel" type="tel" inputmode="tel" autocomplete="off"></label>
-<label>Fecha del préstamo<input id="p-fecha" type="datetime-local" required></label><label>Devolución prevista<input id="p-prev" type="date"></label>
+<label>Correo<input id="p-correo" type="email" inputmode="email" autocomplete="off"></label>
+<label>Fecha del préstamo<input id="p-fecha" type="datetime-local" required></label>
 <label class="w">Notas<textarea id="p-nota"></textarea></label></div>
 <button class="btn p big" id="psave">Guardar préstamo</button><button type="button" id="pcancel" class="btn big" hidden style="margin-top:8px">Cancelar edición</button></form></details>
 <div class="seg"><button id="ps-n" data-ps="N" class="on">Prestados<b id="pcn">0</b></button><button id="ps-r" data-ps="R">Devueltos<b id="pcr">0</b></button></div>
@@ -126,56 +129,30 @@ const fmt=f=>new Date(f).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'sh
 const done=i=>i.estado==='Reparado';
 const wait=i=>{const d=Math.floor((Date.now()-new Date(i.fecha))/864e5);return d<1?'desde hoy':d===1?'1 día':d+' días'};
 let db,items=[],editId=null,tt,cm=new Date(new Date().getFullYear(),new Date().getMonth(),1),selDay=null;
-const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)};
+const toast=(m,ms=2200)=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),ms)};
+addEventListener('error',e=>toast('Error: '+e.message,8000));addEventListener('unhandledrejection',e=>toast('Error: '+(e.reason&&(e.reason.code||e.reason.message)||e.reason),8000));
 const ask=m=>new Promise(r=>{const d=$('#dlg');$('#dmsg').textContent=m;d.showModal();$('#dyes').onclick=()=>{d.close();r(true)};$('#dno').onclick=()=>{d.close();r(false)};d.oncancel=()=>r(false)});
+function sub(){const pe=items.filter(i=>!done(i)).length,np=typeof loans==='undefined'?0:loans.filter(l=>!isDev(l)).length;$('#sub').textContent=`${items.length} registradas, ${pe} sin reparar, ${np} equipos prestados`}
+function tick(){const d=new Date();$('#clock').innerHTML=`<b>${d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</b>${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}`}
+tick();setInterval(tick,15000);
 function onData(a){items=a.sort((x,y)=>y.fecha.localeCompare(x.fecha)||y.num-x.num);render()}
 const put=async o=>{DB.put(o);return o.num};
 function resetForm(){editId=null;$('#frm').reset();$('#f-fecha').value=now();$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
 $('#frm').onsubmit=async e=>{e.preventDefault();
  const old=editId?items.find(x=>x.id===editId):{estado:'Pendiente'};
- const o={...old,equipo:$('#f-equipo').value.trim(),fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
+ const o={...old,equipo:$('#f-equipo').value.trim(),fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),correo:$('#f-correo').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
  if(!editId)o.num=Math.max(0,...items.map(i=>i.num||0))+1;
- const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);let loans=[],psel='N',pedit=null;
-const isDev=l=>l.estado==='Devuelto',late=l=>!isDev(l)&&l.prev&&l.prev<now().slice(0,10);
-function onLoans(a){loans=a;prest()}
-function pcard(l){const lt=late(l);return `<article class="rec ${isDev(l)?'ok':''} ${lt?'late':''}"><div class="rh"><b>${esc(l.obj)}</b><span class="badge">${isDev(l)?'Devuelto':lt?'Vencido':'Prestado'}</span></div>
-<dl class="dl"><dt>Lo tiene</dt><dd>${esc(l.per)}</dd>${l.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(l.tel.replace(/[^\d+]/g,''))}">${esc(l.tel)}</a></dd>`:''}<dt>Prestado</dt><dd>${fmt(l.fecha)}</dd>${l.prev?`<dt>Devolver el</dt><dd>${new Date(l.prev+'T12:00').toLocaleDateString('es-ES')}</dd>`:''}${isDev(l)&&l.fechaDev?`<dt>Devuelto</dt><dd>${fmt(l.fechaDev)}</dd>`:''}</dl>
-${l.nota?`<p>${esc(l.nota)}</p>`:''}<div class="acts">${isDev(l)?`<button class="btn" data-pa="reo" data-id="${l.id}">Reabrir</button>`:`<button class="btn ok" data-pa="dev" data-id="${l.id}">Devuelto</button>`}<button class="btn" data-pa="ed" data-id="${l.id}">Editar</button><button class="btn d" data-pa="del" data-id="${l.id}">Borrar</button></div></article>`}
-function prest(){const n=loans.filter(l=>!isDev(l)),r=loans.filter(isDev);$('#pcn').textContent=n.length;$('#pcr').textContent=r.length;
- $('#ps-n').classList.toggle('on',psel==='N');$('#ps-r').classList.toggle('on',psel==='R');
- const q=$('#p-q').value.toLowerCase().trim();
- const base=psel==='N'?[...n].sort((a,b)=>(late(b)-late(a))||a.fecha.localeCompare(b.fecha)):[...r].sort((a,b)=>(b.fechaDev||b.fecha).localeCompare(a.fechaDev||a.fecha));
- const l=base.filter(x=>!q||[x.obj,x.per,x.tel,x.nota].join(' ').toLowerCase().includes(q));
- $('#plist').innerHTML=l.map(pcard).join('')||`<div class="card sub">${q?'No hay préstamos que coincidan.':psel==='N'?'No hay nada prestado ahora mismo.':'Todavía no hay préstamos devueltos.'}</div>`}
-function presetForm(){pedit=null;$('#pf').reset();$('#p-fecha').value=now();$('#psave').textContent='Guardar préstamo';$('#pcancel').hidden=true;$('#psum').textContent='Nuevo préstamo'}
-$('#pf').onsubmit=e=>{e.preventDefault();const old=pedit?loans.find(x=>x.id===pedit):{estado:'Prestado'};
- PDB.put({...old,obj:$('#p-obj').value.trim(),per:$('#p-per').value.trim(),tel:$('#p-tel').value.trim(),fecha:$('#p-fecha').value,prev:$('#p-prev').value,nota:$('#p-nota').value.trim()});
- toast(pedit?'Préstamo actualizado':'Préstamo guardado');presetForm();$('#pdet').open=false};
-$('#pcancel').onclick=()=>{presetForm();$('#pdet').open=false};
-$('#p-q').oninput=prest;
-$('#t-pre').onclick=e=>{const b=e.target.closest('[data-ps]');if(b){psel=b.dataset.ps;prest()}};
-document.addEventListener('click',async e=>{const b=e.target.closest('[data-pa]');if(!b)return;const id=b.dataset.id,i=loans.find(x=>x.id===id),a=b.dataset.pa;if(!i)return;
- if(a==='dev'&&await ask(`¿Marcar «${i.obj}» como devuelto por ${i.per}?`)){PDB.put({...i,estado:'Devuelto',fechaDev:now()});toast('Marcado como devuelto')}
- if(a==='reo'&&await ask(`¿Volver a marcar «${i.obj}» como prestado?`)){const o={...i,estado:'Prestado'};delete o.fechaDev;PDB.put(o)}
- if(a==='del'&&await ask(`¿Borrar el préstamo de «${i.obj}»? Se borrará para todo el equipo.`))PDB.del(id);
- if(a==='ed'){pedit=id;$('#p-obj').value=i.obj;$('#p-per').value=i.per;$('#p-tel').value=i.tel||'';$('#p-fecha').value=i.fecha;$('#p-prev').value=i.prev||'';$('#p-nota').value=i.nota||'';
-  $('#psum').textContent='Editando préstamo';$('#psave').textContent='Guardar cambios';$('#pcancel').hidden=false;$('#pdet').open=true;$('#pdet').scrollIntoView({block:'start'})}});
-$('#x-pcsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
- const H=['Objeto','Persona','Teléfono','Fecha préstamo','Devolución prevista','Estado','Fecha devolución','Notas'];
- const r=[...loans].sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(l=>[l.obj,l.per,l.tel,l.fecha.replace('T',' '),l.prev,isDev(l)?'Devuelto':'Prestado',(l.fechaDev||'').replace('T',' '),l.nota].map(q).join(';'));
- dl(`prestamos-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
-resetForm();presetForm();};
+ const id=await put(o);toast(editId?`Avería #${id} actualizada`:`Avería #${id} registrada`);resetForm();};
 $('#cancel').onclick=resetForm;
 function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.num}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
-<dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
+<dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${i.correo?`<dt>Correo</dt><dd><a href="mailto:${esc(i.correo)}">${esc(i.correo)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
 <p>${esc(i.motivo)}</p>${i.sol?`<dl class="dl"><dt>Solución</dt><dd>${esc(i.sol)}</dd></dl>`:''}${i.rep?`<dl class="dl"><dt>Repuestos</dt><dd>${esc(i.rep)}</dd></dl>`:''}
 <div class="acts">${done(i)?`<button class="btn" data-a="reo" data-id="${i.id}">Reabrir</button>`:`<button class="btn ok" data-a="rep" data-id="${i.id}">Reparado</button>`}<button class="btn" data-a="ed" data-id="${i.id}">Editar</button><button class="btn d" data-a="del" data-id="${i.id}">Borrar</button></div></article>`}
 function render(){
- const pe=items.filter(i=>!done(i)).length;
- $('#sub').textContent=`${items.length} registradas, ${pe} sin reparar`;
+ sub();
  $('#dl-eq').innerHTML=[...new Set(items.map(i=>i.equipo))].map(x=>`<option value="${esc(x)}">`).join('');
  const q=$('#h-q').value.toLowerCase().trim(),es=$('#h-est').value;
- const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.num,i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
+ const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.num,i.equipo,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
  $('#hres').textContent=`${l.length} ${l.length===1?'resultado':'resultados'}`;
  $('#list').innerHTML=l.map(card).join('')||'<div class="card sub">No hay averías que coincidan. Registra una nueva en la pestaña «Nueva».</div>';
  est();cal();stats();}
@@ -205,26 +182,58 @@ function stats(){const c=f=>items.reduce((m,i)=>{const k=f(i);if(k)m[k]=(m[k]||0
  <div class="card"><h2>Equipos con más averías</h2>${bars(c(i=>i.equipo))}</div>
  <div class="card"><h2>Quién trae más equipos</h2>${bars(c(i=>i.persona))}</div>
  <div class="card"><h2>Últimos 6 meses</h2>${bars(c(i=>i.fecha.slice(0,7)),1)}</div>`}
-function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('nav button.on')?.scrollIntoView({inline:'center',block:'nearest'});scrollTo(0,0)}
+function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.id==='t-'+t));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('nav button.on')?.scrollIntoView({inline:'center',block:'nearest'});if(t==='reg'&&!editId)$('#f-fecha').value=now();scrollTo(0,0)}
 $$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.id,i=items.find(x=>x.id===id),a=b.dataset.a;
  if(a==='rep'&&await ask(`¿Marcar la avería #${i.num} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
  if(a==='reo'&&await ask(`¿Volver a abrir la avería #${i.num}?`)){const o={...i,estado:'Pendiente'};delete o.fechaRep;await put(o)}
  if(a==='del'&&await ask(`¿Borrar la avería #${i.num}? Se borrará para todo el equipo.`))DB.del(id);
- if(a==='ed'){editId=id;const m={equipo:'equipo',fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';
+ if(a==='ed'){editId=id;const m={equipo:'equipo',fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',correo:'correo',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';
   $('#ftitle').textContent='Editando avería #'+i.num;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg')}});
 const dl=(n,t,y)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click()};
 const day=()=>now().slice(0,10);
 $('#x-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
- const H=['Nº','Fecha entrada','Equipo','Persona','Teléfono','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
- const r=[...items].sort((a,b)=>a.num-b.num).map(i=>[i.num,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
+ const H=['Nº','Fecha entrada','Equipo','Persona','Teléfono','Correo','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
+ const r=[...items].sort((a,b)=>a.num-b.num).map(i=>[i.num,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
  dl(`averias-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
 $('#x-json').onclick=()=>dl(`averias-copia-${day()}.json`,JSON.stringify(items),'application/json');
 $('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;
  try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;if(!await ask(`Se reemplazarán los datos de todo el equipo por ${d.length} registros de la copia. ¿Continuar?`))return;
  await DB.wipe();await DB.bulk(d);toast('Copia restaurada')}catch{alert('El archivo no es una copia válida.')}e.target.value=''};
 $('#wipe').onclick=async()=>{if(await ask('¿Borrar TODAS las averías de todo el equipo? No se puede deshacer.')){await DB.wipe();toast('Datos borrados')}};
-resetForm();navigator.storage?.persist?.();
+let loans=[],psel='N',pedit=null;
+const isDev=l=>l.estado==='Devuelto';
+function onLoans(a){loans=a;prest();sub()}
+function pcard(l){return `<article class="rec ${isDev(l)?'ok':''}"><div class="rh"><b>${esc(l.obj)}</b><span class="badge">${isDev(l)?'Devuelto':'Prestado'}</span></div>
+<dl class="dl"><dt>Lo tiene</dt><dd>${esc(l.per)}</dd>${l.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(l.tel.replace(/[^\d+]/g,''))}">${esc(l.tel)}</a></dd>`:''}${l.correo?`<dt>Correo</dt><dd><a href="mailto:${esc(l.correo)}">${esc(l.correo)}</a></dd>`:''}<dt>Prestado</dt><dd>${fmt(l.fecha)}</dd>${isDev(l)&&l.fechaDev?`<dt>Devuelto</dt><dd>${fmt(l.fechaDev)}</dd>`:''}</dl>
+${l.nota?`<p>${esc(l.nota)}</p>`:''}<div class="acts">${isDev(l)?`<button class="btn" data-pa="reo" data-id="${l.id}">Reabrir</button>`:`<button class="btn ok" data-pa="dev" data-id="${l.id}">Devuelto</button>`}<button class="btn" data-pa="ed" data-id="${l.id}">Editar</button><button class="btn d" data-pa="del" data-id="${l.id}">Borrar</button></div></article>`}
+function prest(){const n=loans.filter(l=>!isDev(l)),r=loans.filter(isDev);$('#pcn').textContent=n.length;$('#pcr').textContent=r.length;
+ $('#ps-n').classList.toggle('on',psel==='N');$('#ps-r').classList.toggle('on',psel==='R');
+ const q=$('#p-q').value.toLowerCase().trim();
+ const base=psel==='N'?[...n].sort((a,b)=>b.fecha.localeCompare(a.fecha)):[...r].sort((a,b)=>(b.fechaDev||b.fecha).localeCompare(a.fechaDev||a.fecha));
+ const l=base.filter(x=>!q||[x.obj,x.per,x.tel,x.correo,x.nota].join(' ').toLowerCase().includes(q));
+ $('#plist').innerHTML=l.map(pcard).join('')||`<div class="card sub">${q?'No hay préstamos que coincidan.':psel==='N'?'No hay nada prestado ahora mismo.':'Todavía no hay préstamos devueltos.'}</div>`}
+function presetForm(){pedit=null;$('#pf').reset();$('#p-fecha').value=now();$('#psave').textContent='Guardar préstamo';$('#pcancel').hidden=true;$('#psum').textContent='Nuevo préstamo'}
+$('#pf').onsubmit=e=>{e.preventDefault();const old=pedit?loans.find(x=>x.id===pedit):{estado:'Prestado'};
+ PDB.put({...old,obj:$('#p-obj').value.trim(),per:$('#p-per').value.trim(),tel:$('#p-tel').value.trim(),correo:$('#p-correo').value.trim(),fecha:$('#p-fecha').value,nota:$('#p-nota').value.trim()});
+ toast(pedit?'Préstamo actualizado':'Préstamo guardado');presetForm();$('#pdet').open=false};
+$('#pcancel').onclick=()=>{presetForm();$('#pdet').open=false};
+$('#p-q').oninput=prest;
+$('#pdet').addEventListener('toggle',()=>{if($('#pdet').open&&!pedit)$('#p-fecha').value=now()});
+$('#t-pre').onclick=e=>{const b=e.target.closest('[data-ps]');if(b){psel=b.dataset.ps;prest()}};
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-pa]');if(!b)return;const id=b.dataset.id,i=loans.find(x=>x.id===id),a=b.dataset.pa;if(!i)return;
+ if(a==='dev'&&await ask(`¿Marcar «${i.obj}» como devuelto por ${i.per}?`)){PDB.put({...i,estado:'Devuelto',fechaDev:now()});toast('Marcado como devuelto')}
+ if(a==='reo'&&await ask(`¿Volver a marcar «${i.obj}» como prestado?`)){const o={...i,estado:'Prestado'};delete o.fechaDev;PDB.put(o)}
+ if(a==='del'&&await ask(`¿Borrar el préstamo de «${i.obj}»? Se borrará para todo el equipo.`))PDB.del(id);
+ if(a==='ed'){pedit=id;$('#p-obj').value=i.obj;$('#p-per').value=i.per;$('#p-tel').value=i.tel||'';$('#p-fecha').value=i.fecha;$('#p-correo').value=i.correo||'';$('#p-nota').value=i.nota||'';
+  $('#psum').textContent='Editando préstamo';$('#psave').textContent='Guardar cambios';$('#pcancel').hidden=false;$('#pdet').open=true;$('#pdet').scrollIntoView({block:'start'})}});
+$('#x-pcsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
+ const H=['Objeto','Persona','Teléfono','Correo','Fecha préstamo','Estado','Fecha devolución','Notas'];
+ const r=[...loans].sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(l=>[l.obj,l.per,l.tel,l.correo,l.fecha.replace('T',' '),isDev(l)?'Devuelto':'Prestado',(l.fechaDev||'').replace('T',' '),l.nota].map(q).join(';'));
+ dl(`prestamos-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
+resetForm();presetForm();
+sub();
+navigator.storage?.persist?.();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script><script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
@@ -237,22 +246,22 @@ if(!firebaseConfig.apiKey){$('#login').hidden=false;$('#lf').innerHTML='<h2>Falt
 else{
 const app=initializeApp(firebaseConfig),auth=getAuth(app);
 const fs=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
-const col=collection(fs,'averias'),fail=()=>toast('No se ha podido guardar. Revisa el acceso.');
+const col=collection(fs,'averias'),fail=e=>{console.error(e);toast('No se ha podido guardar ('+(e&&(e.code||e.message)||'error')+'). Revisa el acceso y las reglas de Firebase.',9000)};
 const run=async ops=>{for(let i=0;i<ops.length;i+=400){const b=writeBatch(fs);ops.slice(i,i+400).forEach(f=>f(b));await b.commit()}};
 window.DB={
- put:o=>{const {id,...d}=o;(id?setDoc(doc(col,id),d):addDoc(col,d)).catch(fail)},
+ put:o=>{try{const {id,...d}=o;(id?setDoc(doc(col,id),d):addDoc(col,d)).catch(fail)}catch(e){fail(e)}},
  del:id=>deleteDoc(doc(col,id)).catch(fail),
  wipe:async()=>{const s=await getDocs(col);await run(s.docs.map(d=>b=>b.delete(d.ref)))},
  bulk:a=>run(a.map(x=>{const {id,...d}=x;d.num=d.num??(+id||0);const r=doc(col);return b=>b.set(r,d)})),
  logout:()=>signOut(auth)};
 const pcol=collection(fs,'prestamos');
-window.PDB={put:o=>{const {id,...d}=o;(id?setDoc(doc(pcol,id),d):addDoc(pcol,d)).catch(fail)},del:id=>deleteDoc(doc(pcol,id)).catch(fail)};
+window.PDB={put:o=>{try{const {id,...d}=o;(id?setDoc(doc(pcol,id),d):addDoc(pcol,d)).catch(fail)}catch(e){fail(e)}},del:id=>deleteDoc(doc(pcol,id)).catch(fail)};
 $('#out').onclick=()=>DB.logout();
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#l-err').textContent='';try{await signInWithEmailAndPassword(auth,$('#l-mail').value.trim(),$('#l-pass').value)}catch{$('#l-err').textContent='Correo o contraseña incorrectos.'}};
 let unsub=null,unsubP=null;
 onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;if(unsub){unsub();unsub=null}if(unsubP){unsubP();unsubP=null}
- if(u)unsubP=onSnapshot(pcol,s=>onLoans(s.docs.map(d=>({...d.data(),id:d.id}))),()=>toast('Sin acceso a los préstamos. Revisa las reglas de Firebase.'));
- if(u)unsub=onSnapshot(col,s=>onData(s.docs.map(d=>{const x=d.data();return {...x,id:d.id,num:x.num||0,motivo:x.motivo??''}})),()=>toast('Sin acceso a los datos'));
+ if(u)unsubP=onSnapshot(pcol,s=>onLoans(s.docs.map(d=>({...d.data(),id:d.id}))),e=>toast('Sin acceso a los préstamos ('+(e.code||'error')+'). Revisa las reglas de Firebase.',9000));
+ if(u)unsub=onSnapshot(col,s=>onData(s.docs.map(d=>{const x=d.data();return {...x,id:d.id,num:x.num||0,motivo:x.motivo??''}})),e=>toast('Sin acceso a las averías ('+(e.code||'error')+'). Revisa las reglas de Firebase.',9000));
  else{onData([]);onLoans([])}});
 }
 </script>
