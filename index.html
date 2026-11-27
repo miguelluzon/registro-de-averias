@@ -61,7 +61,7 @@ dialog::backdrop{background:rgba(10,20,28,.55)}dialog p{margin:0 0 4px;font-size
 .seg button b{display:block;font-size:1.7rem;line-height:1.2}
 #s-n.on,#ps-n.on{border-color:var(--pen);box-shadow:inset 0 -4px var(--pen)}#s-r.on,#ps-r.on{border-color:var(--ok);box-shadow:inset 0 -4px var(--ok)}
 .clock{margin-left:auto;text-align:right;font-size:.82rem;color:var(--mut);line-height:1.25;white-space:nowrap}.clock b{display:block;color:var(--ink);font-size:1.15rem}.brand>div:nth-child(2){min-width:0}
-.eqadd{display:flex;gap:8px}.eqadd input{margin:0}.eql{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.eql li{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg);border:1px solid var(--ln);border-radius:6px;padding:6px 6px 6px 12px;font-weight:600}.eql .btn{padding:4px 10px;color:var(--bad)}
+.eqadd{display:flex;gap:8px}.eqadd input{margin:0}.eql{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.eql li{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg);border:1px solid var(--ln);border-radius:6px;padding:6px 6px 6px 12px;font-weight:600}.eql .btn{padding:4px 10px;color:var(--bad)}.eql .mut{font-weight:400}
 summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 .lg{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}.lg[hidden]{display:none}.lg .card{width:100%;max-width:380px;margin:0}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
@@ -73,9 +73,10 @@ summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 <h2 id="ftitle">Nueva avería</h2><p class="sub">Rellena lo básico; el resto puedes completarlo después.</p>
 <div class="g">
 <div class="w"><label for="f-equipo" style="margin-bottom:6px">Equipos</label>
-<div class="eqadd"><input id="f-equipo" list="dl-eq" autocomplete="off" placeholder="Escribe un equipo"><button type="button" class="btn" id="eq-add">Añadir</button></div>
+<input id="f-equipo" list="dl-eq" autocomplete="off" placeholder="Equipo">
+<div class="eqadd" style="margin-top:8px"><input id="f-etq" autocomplete="off" aria-label="Etiqueta de RTVE o número de serie" placeholder="Etiqueta de RTVE / Nº de serie (opcional)"><button type="button" class="btn" id="eq-add">Añadir</button></div>
 <ul id="eq-list" class="eql"></ul>
-<p class="res" style="margin:8px 0 14px">Pulsa «Añadir» o Intro para meter otro equipo. Cada equipo se guarda como una avería con su propio número, con el mismo motivo y la misma persona.</p></div>
+<p class="res" style="margin:8px 0 14px">Si tienes varios equipos con el mismo nombre, pon la etiqueta de RTVE o el nº de serie de cada uno (es opcional). Cada equipo se guarda como una avería con su propio número, con el mismo motivo y la misma persona.</p></div>
 <label>Fecha y hora de entrada<input id="f-fecha" type="datetime-local" required></label>
 <label class="w">Motivo de la avería<textarea id="f-motivo" required></textarea></label>
 </div>
@@ -96,7 +97,7 @@ summary{font-weight:650;cursor:pointer}details[open]>summary{margin-bottom:14px}
 </form></section>
 
 <section id="t-his" class="tab">
-<div class="bar2"><input id="h-q" type="search" placeholder="Buscar por equipo, persona, teléfono, motivo…"><select id="h-est"><option value="">Todas</option><option value="P">No reparadas</option><option value="R">Reparadas</option></select></div>
+<div class="bar2"><input id="h-q" type="search" placeholder="Buscar por equipo, etiqueta, nº de serie, persona…"><select id="h-est"><option value="">Todas</option><option value="P">No reparadas</option><option value="R">Reparadas</option></select></div>
 <p class="res" id="hres"></p><div id="list"></div></section>
 
 <section id="t-est" class="tab"><div class="seg"><button id="s-n" data-s="N" class="on">No reparados<b id="cn">0</b></button><button id="s-r" data-s="R">Reparados<b id="cr">0</b></button></div><div id="est-list"></div></section>
@@ -143,32 +144,35 @@ function onData(a){items=a.sort((x,y)=>y.fecha.localeCompare(x.fecha)||y.num-x.n
 const put=async o=>{DB.put(o);return o.num};
 function resetForm(){editId=null;$('#frm').reset();eqs=[];eqRender();$('#f-fecha').value=now();$('#save').textContent='Guardar avería';$('#cancel').hidden=true;$('#ftitle').textContent='Nueva avería'}
 let eqs=[];
-function eqRender(){$('#eq-list').innerHTML=eqs.map((x,i)=>`<li><span>${i+1}. ${esc(x)}</span><button type="button" class="btn" data-q="${i}" aria-label="Quitar ${esc(x)}">Quitar</button></li>`).join('');
+function eqRender(){$('#eq-list').innerHTML=eqs.map((x,i)=>`<li><span>${i+1}. ${esc(x.n)}${x.e?`<br><span class="mut">Etiqueta / Nº serie: ${esc(x.e)}</span>`:''}</span><button type="button" class="btn" data-q="${i}" aria-label="Quitar ${esc(x.n)}">Quitar</button></li>`).join('');
  if(!editId)$('#save').textContent=eqs.length>1?`Guardar ${eqs.length} averías`:'Guardar avería'}
-function eqAdd(){const v=$('#f-equipo').value.trim();if(!v)return;
- if(eqs.some(x=>x.toLowerCase()===v.toLowerCase())){toast('Ese equipo ya está en la lista');return}
- eqs.push(v);$('#f-equipo').value='';eqRender();$('#f-equipo').focus()}
-$('#eq-add').onclick=eqAdd;
-$('#f-equipo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();eqAdd()}});
+function eqAdd(){const n=$('#f-equipo').value.trim(),e=$('#f-etq').value.trim();
+ if(!n&&!e)return true;
+ if(!n){toast('Escribe también el nombre del equipo');$('#f-equipo').focus();return false}
+ if(eqs.some(x=>x.n.toLowerCase()===n.toLowerCase()&&x.e.toLowerCase()===e.toLowerCase())){toast('Ya está en la lista. Si son varios iguales, pon la etiqueta o el nº de serie de cada uno.',5000);return false}
+ eqs.push({n,e});$('#f-equipo').value='';$('#f-etq').value='';eqRender();$('#f-equipo').focus();return true}
+$('#eq-add').onclick=()=>eqAdd();
+$('#f-equipo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if($('#f-equipo').value.trim())$('#f-etq').focus()}});
+$('#f-etq').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();eqAdd()}});
 $('#eq-list').onclick=e=>{const b=e.target.closest('[data-q]');if(b){eqs.splice(+b.dataset.q,1);eqRender()}};
-$('#frm').onsubmit=async e=>{e.preventDefault();eqAdd();
+$('#frm').onsubmit=async e=>{e.preventDefault();if(!eqAdd())return;
  if(!eqs.length){toast('Añade al menos un equipo');$('#f-equipo').focus();return}
  const f={fecha:$('#f-fecha').value,motivo:$('#f-motivo').value.trim(),persona:$('#f-persona').value.trim(),tel:$('#f-tel').value.trim(),correo:$('#f-correo').value.trim(),sol:$('#f-sol').value.trim(),rep:$('#f-rep').value.trim()};
  let n=Math.max(0,...items.map(i=>i.num||0)),nums=[],upd=false;
  for(let k=0;k<eqs.length;k++){
-  if(k===0&&editId){const old=items.find(x=>x.id===editId);await put({...old,...f,equipo:eqs[0]});nums.push(old.num);upd=true}
-  else{n++;nums.push(await put({...f,estado:'Pendiente',equipo:eqs[k],num:n}))}}
+  if(k===0&&editId){const old=items.find(x=>x.id===editId);await put({...old,...f,equipo:eqs[0].n,etiqueta:eqs[0].e});nums.push(old.num);upd=true}
+  else{n++;nums.push(await put({...f,estado:'Pendiente',equipo:eqs[k].n,etiqueta:eqs[k].e,num:n}))}}
  toast(nums.length===1?(upd?`Avería #${nums[0]} actualizada`:`Avería #${nums[0]} registrada`):`${nums.length} averías guardadas (${nums.map(x=>'#'+x).join(', ')})`);resetForm();};
 $('#cancel').onclick=resetForm;
 function card(i){return `<article class="rec ${done(i)?'ok':''}"><div class="rh"><span class="num">#${i.num}</span><b>${esc(i.equipo)}</b><span class="badge">${done(i)?'Reparado':'No reparado'}</span></div>
-<dl class="dl"><dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${i.correo?`<dt>Correo</dt><dd><a href="mailto:${esc(i.correo)}">${esc(i.correo)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
+<dl class="dl">${i.etiqueta?`<dt>Etiqueta / Nº serie</dt><dd>${esc(i.etiqueta)}</dd>`:''}<dt>Entrada</dt><dd>${fmt(i.fecha)}</dd>${done(i)?'':`<dt>Sin reparar</dt><dd>${wait(i)}</dd>`}<dt>Lo trae</dt><dd>${esc(i.persona)||'Sin indicar'}</dd>${i.tel?`<dt>Teléfono</dt><dd><a href="tel:${esc(i.tel.replace(/[^\d+]/g,''))}">${esc(i.tel)}</a></dd>`:''}${i.correo?`<dt>Correo</dt><dd><a href="mailto:${esc(i.correo)}">${esc(i.correo)}</a></dd>`:''}${done(i)&&i.fechaRep?`<dt>Reparado</dt><dd>${fmt(i.fechaRep)}</dd>`:''}</dl>
 <p>${esc(i.motivo)}</p>${i.sol?`<dl class="dl"><dt>Solución</dt><dd>${esc(i.sol)}</dd></dl>`:''}${i.rep?`<dl class="dl"><dt>Repuestos</dt><dd>${esc(i.rep)}</dd></dl>`:''}
 <div class="acts">${done(i)?`<button class="btn" data-a="reo" data-id="${i.id}">Reabrir</button>`:`<button class="btn ok" data-a="rep" data-id="${i.id}">Reparado</button>`}<button class="btn" data-a="ed" data-id="${i.id}">Editar</button><button class="btn d" data-a="del" data-id="${i.id}">Borrar</button></div></article>`}
 function render(){
  sub();
  $('#dl-eq').innerHTML=[...new Set(items.map(i=>i.equipo))].map(x=>`<option value="${esc(x)}">`).join('');
  const q=$('#h-q').value.toLowerCase().trim(),es=$('#h-est').value;
- const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.num,i.equipo,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
+ const l=items.filter(i=>(!es||(es==='R')===done(i))&&(!q||[i.num,i.equipo,i.etiqueta,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep].join(' ').toLowerCase().includes(q)));
  $('#hres').textContent=`${l.length} ${l.length===1?'resultado':'resultados'}`;
  $('#list').innerHTML=l.map(card).join('')||'<div class="card sub">No hay averías que coincidan. Registra una nueva en la pestaña «Nueva».</div>';
  est();cal();stats();}
@@ -204,13 +208,13 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-a]')
  if(a==='rep'&&await ask(`¿Marcar la avería #${i.num} (${i.equipo}) como reparada?`)){await put({...i,estado:'Reparado',fechaRep:now()});toast('Marcada como reparada')}
  if(a==='reo'&&await ask(`¿Volver a abrir la avería #${i.num}?`)){const o={...i,estado:'Pendiente'};delete o.fechaRep;await put(o)}
  if(a==='del'&&await ask(`¿Borrar la avería #${i.num}? Se borrará para todo el equipo.`))DB.del(id);
- if(a==='ed'){editId=id;const m={fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',correo:'correo',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';eqs=[i.equipo];eqRender();$('#f-equipo').value='';
+ if(a==='ed'){editId=id;const m={fecha:'fecha',motivo:'motivo',persona:'persona',tel:'tel',correo:'correo',sol:'sol',rep:'rep'};for(const k in m)$('#f-'+k).value=i[m[k]]??'';eqs=[{n:i.equipo,e:i.etiqueta||''}];eqRender();$('#f-equipo').value='';
   $('#ftitle').textContent='Editando avería #'+i.num;$('#save').textContent='Guardar cambios';$('#cancel').hidden=false;show('reg')}});
 const dl=(n,t,y)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click()};
 const day=()=>now().slice(0,10);
 $('#x-csv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""').replace(/\n/g,' ')+'"';
- const H=['Nº','Fecha entrada','Equipo','Persona','Teléfono','Correo','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
- const r=[...items].sort((a,b)=>a.num-b.num).map(i=>[i.num,i.fecha.replace('T',' '),i.equipo,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
+ const H=['Nº','Fecha entrada','Equipo','Etiqueta RTVE / Nº serie','Persona','Teléfono','Correo','Motivo','Solución','Repuestos','Estado','Fecha reparación'];
+ const r=[...items].sort((a,b)=>a.num-b.num).map(i=>[i.num,i.fecha.replace('T',' '),i.equipo,i.etiqueta,i.persona,i.tel,i.correo,i.motivo,i.sol,i.rep,done(i)?'Reparado':'No reparado',(i.fechaRep||'').replace('T',' ')].map(q).join(';'));
  dl(`averias-${day()}.csv`,'\ufeff'+[H.map(q).join(';'),...r].join('\r\n'),'text/csv')};
 $('#x-json').onclick=()=>dl(`averias-copia-${day()}.json`,JSON.stringify(items),'application/json');
 $('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;
